@@ -7,16 +7,30 @@ document.getElementById("userName").textContent = getUserName();
 const CIRCLE_RADIUS = 35;
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
 
-function getProgressColor(percentage) {
-  if (percentage >= 75) return "var(--accent)";
-  if (percentage >= 65) return "var(--warning)";
+let isHolidayToday = false;
+let dashboardData = null;
+
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+function getProgressColor(pct) {
+  if (pct >= 75) return "var(--accent)";
+  if (pct >= 65) return "var(--warning)";
   return "var(--danger)";
 }
 
-function getStatusClass(percentage) {
-  if (percentage >= 75) return "good";
-  if (percentage >= 65) return "warn";
+function getStatusClass(pct) {
+  if (pct >= 75) return "good";
+  if (pct >= 65) return "warn";
   return "bad";
+}
+
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
 }
 
 function createProgressRing(percentage) {
@@ -36,6 +50,58 @@ function createProgressRing(percentage) {
   `;
 }
 
+/* ===== TODAY'S CLASSES ===== */
+function renderTodaySection(subjects, todayDay) {
+  const section = document.getElementById("todaySection");
+  const todaySubjects = subjects.filter((s) => s.scheduledToday);
+
+  if (isHolidayToday || todaySubjects.length === 0) {
+    section.innerHTML = "";
+    return;
+  }
+
+  const cards = todaySubjects
+    .map((item) => {
+      let actionHtml;
+
+      if (item.todayStatus) {
+        const labels = { present: "✓ Present", absent: "✕ Absent", no_class: "⊘ No Class" };
+        actionHtml = `<span class="today-status ${item.todayStatus}">${labels[item.todayStatus]}</span>`;
+      } else {
+        actionHtml = `
+        <div class="mark-btns">
+          <button class="btn btn-sm btn-present" onclick="markAttendance('${item.subjectId}', 'present')">✓ Present</button>
+          <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">✕ Absent</button>
+          <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">⊘ No Class</button>
+        </div>
+      `;
+      }
+
+      return `
+      <div class="today-card" id="today-${item.subjectId}">
+        <div class="today-card-header">
+          <h4>${escapeHtml(item.subject)}</h4>
+          <span class="subject-badge ${item.type === "lab" ? "badge-lab" : "badge-theory"}">${item.type === "lab" ? "Lab" : "Theory"}</span>
+        </div>
+        ${actionHtml}
+      </div>
+    `;
+    })
+    .join("");
+
+  section.innerHTML = `
+    <div class="today-section">
+      <div class="section-heading">
+        📅 Today's Classes
+        <span class="day-tag">${todayDay}</span>
+      </div>
+      <div class="today-grid">${cards}</div>
+    </div>
+    <hr class="section-divider" />
+  `;
+}
+
+/* ===== SUBJECT CARDS ===== */
 function createSubjectCard(item) {
   const badgeClass = item.type === "lab" ? "badge-lab" : "badge-theory";
   const badgeText = item.type === "lab" ? "Lab" : "Theory";
@@ -51,12 +117,20 @@ function createSubjectCard(item) {
     }
   }
 
+  const daysStr = item.days.length > 0
+    ? item.days.map((d) => d.slice(0, 3)).join(", ")
+    : "No schedule";
+
+  const expectedStr = item.expectedTotal > 0
+    ? `<span class="expected">of ${item.expectedTotal} expected</span>`
+    : "";
+
   return `
     <div class="subject-card" id="card-${item.subjectId}">
       <div class="subject-card-header">
         <div class="subject-info">
           <h3>${escapeHtml(item.subject)}</h3>
-          <span class="subject-badge ${badgeClass}">${badgeText}</span>
+          <span class="subject-badge ${badgeClass}">${badgeText} · ${daysStr}</span>
         </div>
         ${createProgressRing(item.percentage)}
       </div>
@@ -73,8 +147,8 @@ function createSubjectCard(item) {
         <div class="stat">
           <span class="num">${item.totalClasses}</span>
           <span class="label">Total</span>
+          ${expectedStr}
         </div>
-        ${item.holidays > 0 ? `<div class="stat"><span class="num">${item.holidays}</span><span class="label">Holidays</span></div>` : ""}
       </div>
 
       ${bunkHtml}
@@ -87,8 +161,8 @@ function createSubjectCard(item) {
           <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">
             ✕ Absent
           </button>
-          <button class="btn btn-sm btn-holiday" onclick="markAttendance('${item.subjectId}', 'holiday')">
-            🏖 Holiday
+          <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">
+            ⊘ No Class
           </button>
         </div>
         <button class="btn btn-sm btn-danger-ghost" onclick="confirmDelete('${item.subjectId}', '${escapeHtml(item.subject)}')" title="Delete subject">
@@ -99,29 +173,57 @@ function createSubjectCard(item) {
   `;
 }
 
-function escapeHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
+/* ===== BANNERS ===== */
+function renderSetupBanner(data) {
+  const banner = document.getElementById("setupBanner");
+  if (!data.semesterStart || !data.semesterEnd) {
+    banner.innerHTML = `
+      <div class="setup-banner">
+        <span class="setup-icon">📅</span>
+        <span>Set your <a href="settings.html">semester dates</a> to see expected class counts and better bunk predictions.</span>
+      </div>
+    `;
+  } else {
+    banner.innerHTML = "";
+  }
 }
 
+function renderHolidayBanner() {
+  const banner = document.getElementById("holidayBanner");
+  if (isHolidayToday) {
+    banner.innerHTML = `
+      <div class="holiday-banner">
+        <span class="holiday-emoji">🏖</span>
+        <div>
+          <strong>Today is a holiday!</strong>
+          <span>Attendance marking is disabled for today's classes.</span>
+        </div>
+      </div>
+    `;
+  } else {
+    banner.innerHTML = "";
+  }
+}
+
+/* ===== STATS BAR ===== */
 function renderStatsBar(data) {
   const statsBar = document.getElementById("statsBar");
+  const subjects = data.subjects;
 
-  if (data.length === 0) {
+  if (subjects.length === 0) {
     statsBar.innerHTML = "";
     return;
   }
 
-  const totalSubjects = data.length;
-  const totalClasses = data.reduce((sum, d) => sum + d.totalClasses, 0);
-  const totalPresent = data.reduce((sum, d) => sum + d.presentClasses, 0);
-  const overallPercentage =
+  const totalSubjects = subjects.length;
+  const totalClasses = subjects.reduce((sum, d) => sum + d.totalClasses, 0);
+  const totalPresent = subjects.reduce((sum, d) => sum + d.presentClasses, 0);
+  const overallPct =
     totalClasses === 0
       ? 0
       : parseFloat(((totalPresent / totalClasses) * 100).toFixed(1));
-  const lowCount = data.filter((d) => d.isLow).length;
-  const statusClass = getStatusClass(overallPercentage);
+  const lowCount = subjects.filter((d) => d.isLow).length;
+  const statusClass = getStatusClass(overallPct);
 
   statsBar.innerHTML = `
     <div class="stat-card">
@@ -130,7 +232,7 @@ function renderStatsBar(data) {
     </div>
     <div class="stat-card">
       <div class="stat-label">Overall Attendance</div>
-      <div class="stat-value ${statusClass}">${overallPercentage}%</div>
+      <div class="stat-value ${statusClass}">${overallPct}%</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Total Classes</div>
@@ -143,12 +245,16 @@ function renderStatsBar(data) {
   `;
 }
 
+/* ===== MAIN RENDER ===== */
 function renderDashboard(data) {
   const grid = document.getElementById("subjectsGrid");
 
+  renderSetupBanner(data);
+  renderHolidayBanner();
   renderStatsBar(data);
+  renderTodaySection(data.subjects, data.todayDay);
 
-  if (data.length === 0) {
+  if (data.subjects.length === 0) {
     grid.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">📚</div>
@@ -160,12 +266,25 @@ function renderDashboard(data) {
     return;
   }
 
-  grid.innerHTML = data.map(createSubjectCard).join("");
+  const heading = data.subjects.some((s) => s.scheduledToday) && !isHolidayToday
+    ? `<div class="section-heading">📋 All Subjects</div>`
+    : "";
+
+  grid.innerHTML = heading + data.subjects.map(createSubjectCard).join("");
 }
 
+/* ===== LOAD ===== */
 async function loadDashboard() {
   try {
-    const data = await api.get("/api/attendance/dashboard");
+    const [holidays, data] = await Promise.all([
+      api.get("/api/holidays"),
+      api.get("/api/attendance/dashboard"),
+    ]);
+
+    const todayStr = getTodayStr();
+    isHolidayToday = holidays.includes(todayStr);
+    dashboardData = data;
+
     renderDashboard(data);
   } catch (error) {
     const grid = document.getElementById("subjectsGrid");
@@ -180,6 +299,7 @@ async function loadDashboard() {
   }
 }
 
+/* ===== ACTIONS ===== */
 async function markAttendance(subjectId, status) {
   try {
     await api.post("/api/attendance", { subjectId, status });
@@ -189,13 +309,17 @@ async function markAttendance(subjectId, status) {
       card.style.opacity = "0.5";
       card.style.pointerEvents = "none";
     }
+    const todayCard = document.getElementById("today-" + subjectId);
+    if (todayCard) {
+      todayCard.style.opacity = "0.5";
+      todayCard.style.pointerEvents = "none";
+    }
 
     const messages = {
       present: "Marked as present ✓",
       absent: "Marked as absent",
-      holiday: "Marked as holiday 🏖 — won't affect your %",
+      no_class: "Marked as no class — won't affect your %",
     };
-
     showToast(messages[status] || "Attendance marked", "success");
 
     await loadDashboard();

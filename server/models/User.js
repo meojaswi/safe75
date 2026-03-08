@@ -18,6 +18,14 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    semesterStart: {
+      type: String,
+      default: null,
+    },
+    semesterEnd: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true },
 );

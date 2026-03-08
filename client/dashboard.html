@@ -17,6 +17,10 @@
         <a href="dashboard.html" class="navbar-brand">Safe75</a>
         <div class="navbar-right">
           <span class="navbar-user">Hi, <span id="userName"></span></span>
+          <a href="holidays.html" class="btn btn-holiday-link btn-sm"
+            >🏖 Holidays</a
+          >
+          <a href="settings.html" class="btn btn-ghost btn-sm">⚙ Settings</a>
           <button onclick="logout()" class="btn btn-ghost btn-sm">
             Logout
           </button>
@@ -30,12 +34,19 @@
         <p>Track your attendance and stay safe.</p>
       </div>
 
+      <div id="setupBanner"></div>
+      <div id="holidayBanner"></div>
+
       <div class="stats-bar" id="statsBar"></div>
 
-      <div class="subjects-grid" id="subjectsGrid">
-        <div class="empty-state">
-          <div class="loading-spinner" style="width: 32px; height: 32px"></div>
-          <p style="margin-top: 16px">Loading your subjects...</p>
+      <div id="todaySection"></div>
+
+      <div id="allSubjectsSection">
+        <div class="subjects-grid" id="subjectsGrid">
+          <div class="empty-state">
+            <div class="loading-spinner" style="width: 32px; height: 32px"></div>
+            <p style="margin-top: 16px">Loading your subjects...</p>
+          </div>
         </div>
       </div>
     </div>
