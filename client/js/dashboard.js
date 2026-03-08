@@ -266,11 +266,7 @@ function renderDashboard(data) {
     return;
   }
 
-  const heading = data.subjects.some((s) => s.scheduledToday) && !isHolidayToday
-    ? `<div class="section-heading">📋 All Subjects</div>`
-    : "";
-
-  grid.innerHTML = heading + data.subjects.map(createSubjectCard).join("");
+  grid.innerHTML = "";
 }
 
 /* ===== LOAD ===== */
