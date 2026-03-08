@@ -1339,3 +1339,35 @@ body {
 .section-divider {
   margin: 8px 0 20px;
 }
+
+/* ===== EDIT BUTTON & MARKED ROW ===== */
+.today-marked {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-edit {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all var(--transition);
+  padding: 0;
+}
+
+.btn-edit:hover {
+  background: var(--bg-input);
+  border-color: var(--border-hover);
+  transform: scale(1.1);
+}
+
+.edit-btns {
+  margin-top: 10px;
+}

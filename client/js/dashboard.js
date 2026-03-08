@@ -63,13 +63,30 @@ function renderTodaySection(subjects, todayDay) {
   const cards = todaySubjects
     .map((item) => {
       const s = item.todayStatus;
-      actionHtml = `
-        <div class="mark-btns">
-          <button class="btn btn-sm btn-present ${s === 'present' ? 'active-status' : ''}" onclick="markAttendance('${item.subjectId}', 'present')">✓ Present</button>
-          <button class="btn btn-sm btn-absent ${s === 'absent' ? 'active-status' : ''}" onclick="markAttendance('${item.subjectId}', 'absent')">✕ Absent</button>
-          <button class="btn btn-sm btn-noclass ${s === 'no_class' ? 'active-status' : ''}" onclick="markAttendance('${item.subjectId}', 'no_class')">⊘ No Class</button>
-        </div>
-      `;
+      let actionHtml;
+
+      if (s) {
+        const labels = { present: "✓ Present", absent: "✕ Absent", no_class: "⊘ No Class" };
+        actionHtml = `
+          <div class="today-marked">
+            <span class="today-status ${s}">${labels[s]}</span>
+            <button class="btn-edit" onclick="toggleEdit('${item.subjectId}')" title="Change status">✏️</button>
+          </div>
+          <div class="mark-btns edit-btns" id="edit-${item.subjectId}" style="display:none;">
+            <button class="btn btn-sm btn-present" onclick="markAttendance('${item.subjectId}', 'present')">✓ Present</button>
+            <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">✕ Absent</button>
+            <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">⊘ No Class</button>
+          </div>
+        `;
+      } else {
+        actionHtml = `
+          <div class="mark-btns">
+            <button class="btn btn-sm btn-present" onclick="markAttendance('${item.subjectId}', 'present')">✓ Present</button>
+            <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">✕ Absent</button>
+            <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">⊘ No Class</button>
+          </div>
+        `;
+      }
 
       return `
       <div class="today-card" id="today-${item.subjectId}">
@@ -286,6 +303,14 @@ async function loadDashboard() {
         <button onclick="loadDashboard()" class="btn btn-primary">Retry</button>
       </div>
     `;
+  }
+}
+
+/* ===== TOGGLE EDIT ===== */
+function toggleEdit(subjectId) {
+  const el = document.getElementById("edit-" + subjectId);
+  if (el) {
+    el.style.display = el.style.display === "none" ? "flex" : "none";
   }
 }
 
