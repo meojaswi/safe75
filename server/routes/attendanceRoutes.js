@@ -1,11 +1,6 @@
 const express = require("express");
 const router = express.Router();
 
-const { markAttendance } = require("../controllers/attendanceController");
-
-router.post("/", markAttendance);
-
-module.exports = router;
 const {
   markAttendance,
   getAttendanceStats,
@@ -13,3 +8,5 @@ const {
 
 router.post("/", markAttendance);
 router.get("/stats/:subjectId", getAttendanceStats);
+
+module.exports = router;
