@@ -74,6 +74,7 @@ function createSubjectCard(item) {
           <span class="num">${item.totalClasses}</span>
           <span class="label">Total</span>
         </div>
+        ${item.holidays > 0 ? `<div class="stat"><span class="num">${item.holidays}</span><span class="label">Holidays</span></div>` : ""}
       </div>
 
       ${bunkHtml}
@@ -85,6 +86,9 @@ function createSubjectCard(item) {
           </button>
           <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">
             ✕ Absent
+          </button>
+          <button class="btn btn-sm btn-holiday" onclick="markAttendance('${item.subjectId}', 'holiday')">
+            🏖 Holiday
           </button>
         </div>
         <button class="btn btn-sm btn-danger-ghost" onclick="confirmDelete('${item.subjectId}', '${escapeHtml(item.subject)}')" title="Delete subject">
@@ -186,10 +190,13 @@ async function markAttendance(subjectId, status) {
       card.style.pointerEvents = "none";
     }
 
-    showToast(
-      status === "present" ? "Marked as present ✓" : "Marked as absent",
-      "success",
-    );
+    const messages = {
+      present: "Marked as present ✓",
+      absent: "Marked as absent",
+      holiday: "Marked as holiday 🏖 — won't affect your %",
+    };
+
+    showToast(messages[status] || "Attendance marked", "success");
 
     await loadDashboard();
   } catch (error) {

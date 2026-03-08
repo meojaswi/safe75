@@ -283,6 +283,17 @@ body {
   border-color: rgba(240, 64, 96, 0.4);
 }
 
+.btn-holiday {
+  background: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid rgba(240, 160, 48, 0.2);
+}
+
+.btn-holiday:hover {
+  background: rgba(240, 160, 48, 0.2);
+  border-color: rgba(240, 160, 48, 0.4);
+}
+
 .btn-ghost {
   background: transparent;
   color: var(--text-secondary);

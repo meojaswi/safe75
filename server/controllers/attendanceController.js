@@ -38,11 +38,19 @@ exports.getAttendanceStats = async (req, res) => {
   try {
     const { subjectId } = req.params;
 
-    const total = await Attendance.countDocuments({ subjectId });
+    const total = await Attendance.countDocuments({
+      subjectId,
+      status: { $ne: "holiday" },
+    });
 
     const present = await Attendance.countDocuments({
       subjectId,
       status: "present",
+    });
+
+    const holidays = await Attendance.countDocuments({
+      subjectId,
+      status: "holiday",
     });
 
     const percentage = total === 0 ? 0 : (present / total) * 100;
@@ -50,6 +58,7 @@ exports.getAttendanceStats = async (req, res) => {
     res.json({
       totalClasses: total,
       presentClasses: present,
+      holidays,
       attendancePercentage: percentage.toFixed(2),
     });
   } catch (error) {
@@ -66,11 +75,17 @@ exports.getDashboard = async (req, res) => {
     for (const subject of subjects) {
       const total = await Attendance.countDocuments({
         subjectId: subject._id,
+        status: { $ne: "holiday" },
       });
 
       const present = await Attendance.countDocuments({
         subjectId: subject._id,
         status: "present",
+      });
+
+      const holidays = await Attendance.countDocuments({
+        subjectId: subject._id,
+        status: "holiday",
       });
 
       const percentage = total === 0 ? 0 : (present / total) * 100;
@@ -92,6 +107,7 @@ exports.getDashboard = async (req, res) => {
         type: subject.type,
         totalClasses: total,
         presentClasses: present,
+        holidays,
         percentage: parseFloat(percentage.toFixed(2)),
         isLow: percentage < 75 && total > 0,
         canBunk,
