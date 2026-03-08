@@ -10,3 +10,8 @@ router.post("/", markAttendance);
 router.get("/stats/:subjectId", getAttendanceStats);
 
 module.exports = router;
+const { getDashboard } = require("../controllers/attendanceController");
+
+router.post("/", markAttendance);
+router.get("/stats/:subjectId", getAttendanceStats);
+router.get("/dashboard", getDashboard);
