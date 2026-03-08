@@ -1,18 +1,49 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <title>Safe75 Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Your attendance dashboard — track every subject and stay above 75%."
+    />
+    <title>Dashboard — Safe75</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
 
   <body>
-    <h1>Safe75 Dashboard</h1>
+    <nav class="navbar">
+      <div class="container">
+        <a href="dashboard.html" class="navbar-brand">Safe75</a>
+        <div class="navbar-right">
+          <span class="navbar-user">Hi, <span id="userName"></span></span>
+          <button onclick="logout()" class="btn btn-ghost btn-sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
 
-    <div id="subjects"></div>
-    <a href="add-subject.html">
-      <button>Add Subject</button>
-    </a>
+    <div class="container">
+      <div class="page-header">
+        <h1>Your Dashboard</h1>
+        <p>Track your attendance and stay safe.</p>
+      </div>
 
+      <div class="stats-bar" id="statsBar"></div>
+
+      <div class="subjects-grid" id="subjectsGrid">
+        <div class="empty-state">
+          <div class="loading-spinner" style="width: 32px; height: 32px"></div>
+          <p style="margin-top: 16px">Loading your subjects...</p>
+        </div>
+      </div>
+    </div>
+
+    <a href="add-subject.html" class="fab" title="Add Subject">+</a>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/dashboard.js"></script>
   </body>
 </html>

@@ -1,26 +1,92 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <title>Add Subject</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Subject — Safe75</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
 
   <body>
-    <h1>Add Subject</h1>
+    <nav class="navbar">
+      <div class="container">
+        <a href="dashboard.html" class="navbar-brand">Safe75</a>
+        <div class="navbar-right">
+          <button onclick="logout()" class="btn btn-ghost btn-sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
 
-    <input id="name" placeholder="Subject Name" />
+    <div class="container">
+      <div class="page-header">
+        <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+      </div>
 
-    <select id="type">
-      <option value="theory">Theory</option>
-      <option value="lab">Lab</option>
-    </select>
+      <div class="form-card">
+        <h2>Add New Subject</h2>
 
-    <input id="days" placeholder="Days (comma separated)" />
+        <div id="alert" class="alert alert-error"></div>
 
-    <button onclick="addSubject()">Add Subject</button>
+        <form id="addForm" onsubmit="return handleAddSubject(event)">
+          <div class="form-group">
+            <label for="name">Subject Name</label>
+            <input
+              type="text"
+              id="name"
+              placeholder="e.g. Data Structures"
+              required
+            />
+          </div>
 
-    <p id="message"></p>
+          <div class="form-group">
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="theory">Theory</option>
+              <option value="lab">Lab</option>
+            </select>
+          </div>
 
+          <div class="form-group">
+            <label>Scheduled Days</label>
+            <div class="days-grid">
+              <div class="day-checkbox">
+                <input type="checkbox" id="mon" value="Monday" />
+                <label for="mon">Mon</label>
+              </div>
+              <div class="day-checkbox">
+                <input type="checkbox" id="tue" value="Tuesday" />
+                <label for="tue">Tue</label>
+              </div>
+              <div class="day-checkbox">
+                <input type="checkbox" id="wed" value="Wednesday" />
+                <label for="wed">Wed</label>
+              </div>
+              <div class="day-checkbox">
+                <input type="checkbox" id="thu" value="Thursday" />
+                <label for="thu">Thu</label>
+              </div>
+              <div class="day-checkbox">
+                <input type="checkbox" id="fri" value="Friday" />
+                <label for="fri">Fri</label>
+              </div>
+              <div class="day-checkbox">
+                <input type="checkbox" id="sat" value="Saturday" />
+                <label for="sat">Sat</label>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" id="submitBtn" class="btn btn-primary btn-full">
+            Add Subject
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
     <script src="js/addSubject.js"></script>
   </body>
 </html>

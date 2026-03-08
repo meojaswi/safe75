@@ -1,8 +1,24 @@
 const Attendance = require("../models/Attendance");
+const Subject = require("../models/Subject");
 
 exports.markAttendance = async (req, res) => {
   try {
     const { subjectId, status } = req.body;
+
+    if (!subjectId || !status) {
+      return res
+        .status(400)
+        .json({ message: "Subject ID and status are required" });
+    }
+
+    const subject = await Subject.findOne({
+      _id: subjectId,
+      userId: req.userId,
+    });
+
+    if (!subject) {
+      return res.status(404).json({ message: "Subject not found" });
+    }
 
     const attendance = await Attendance.create({
       subjectId,
@@ -41,11 +57,9 @@ exports.getAttendanceStats = async (req, res) => {
   }
 };
 
-const Subject = require("../models/Subject");
-
 exports.getDashboard = async (req, res) => {
   try {
-    const subjects = await Subject.find();
+    const subjects = await Subject.find({ userId: req.userId });
 
     const dashboard = [];
 
@@ -61,9 +75,27 @@ exports.getDashboard = async (req, res) => {
 
       const percentage = total === 0 ? 0 : (present / total) * 100;
 
+      let canBunk = 0;
+      let needToAttend = 0;
+
+      if (total > 0) {
+        if (percentage >= 75) {
+          canBunk = Math.floor((present - 0.75 * total) / 0.75);
+        } else {
+          needToAttend = Math.ceil((0.75 * total - present) / 0.25);
+        }
+      }
+
       dashboard.push({
+        subjectId: subject._id,
         subject: subject.name,
-        attendance: percentage.toFixed(2) + "%",
+        type: subject.type,
+        totalClasses: total,
+        presentClasses: present,
+        percentage: parseFloat(percentage.toFixed(2)),
+        isLow: percentage < 75 && total > 0,
+        canBunk,
+        needToAttend,
       });
     }
 
