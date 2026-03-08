@@ -5,10 +5,11 @@
   "license": "ISC",
   "author": "Ojaswi",
   "type": "commonjs",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+  "dev": "nodemon server/server.js",
+  "start": "node server/server.js"
+
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
