@@ -9,6 +9,7 @@ const app = express();
 const subjectRoutes = require("./routes/subjectRoutes");
 app.use(cors());
 app.use(express.json());
+app.use("/api/subjects", subjectRoutes);
 
 connectDB();
 
