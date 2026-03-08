@@ -62,20 +62,14 @@ function renderTodaySection(subjects, todayDay) {
 
   const cards = todaySubjects
     .map((item) => {
-      let actionHtml;
-
-      if (item.todayStatus) {
-        const labels = { present: "✓ Present", absent: "✕ Absent", no_class: "⊘ No Class" };
-        actionHtml = `<span class="today-status ${item.todayStatus}">${labels[item.todayStatus]}</span>`;
-      } else {
-        actionHtml = `
+      const s = item.todayStatus;
+      actionHtml = `
         <div class="mark-btns">
-          <button class="btn btn-sm btn-present" onclick="markAttendance('${item.subjectId}', 'present')">✓ Present</button>
-          <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">✕ Absent</button>
-          <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">⊘ No Class</button>
+          <button class="btn btn-sm btn-present ${s === 'present' ? 'active-status' : ''}" onclick="markAttendance('${item.subjectId}', 'present')">✓ Present</button>
+          <button class="btn btn-sm btn-absent ${s === 'absent' ? 'active-status' : ''}" onclick="markAttendance('${item.subjectId}', 'absent')">✕ Absent</button>
+          <button class="btn btn-sm btn-noclass ${s === 'no_class' ? 'active-status' : ''}" onclick="markAttendance('${item.subjectId}', 'no_class')">⊘ No Class</button>
         </div>
       `;
-      }
 
       return `
       <div class="today-card" id="today-${item.subjectId}">

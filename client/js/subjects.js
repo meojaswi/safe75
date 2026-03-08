@@ -84,23 +84,6 @@ function createSubjectCard(item) {
       </div>
 
       ${bunkHtml}
-
-      <div class="subject-actions">
-        <div class="mark-btns">
-          <button class="btn btn-sm btn-present" onclick="markAttendance('${item.subjectId}', 'present')">
-            ✓ Present
-          </button>
-          <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">
-            ✕ Absent
-          </button>
-          <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">
-            ⊘ No Class
-          </button>
-        </div>
-        <button class="btn btn-sm btn-danger-ghost" onclick="confirmDelete('${item.subjectId}', '${escapeHtml(item.subject)}')" title="Delete subject">
-          🗑
-        </button>
-      </div>
     </div>
   `;
 }
