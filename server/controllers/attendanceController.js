@@ -195,11 +195,45 @@ exports.getDashboard = async (req, res) => {
       });
     }
 
+    // Build heatmap data: all attendance records across all subjects for this user
+    const allSubjectIds = subjects.map((s) => s._id);
+    const allRecords = await Attendance.find({
+      subjectId: { $in: allSubjectIds },
+      status: { $ne: "no_class" },
+    }).select("date status");
+
+    // Create a date → status map (if any subject was attended that day, it's "present")
+    const dateMap = {};
+    for (const rec of allRecords) {
+      if (!dateMap[rec.date] || rec.status === "present") {
+        dateMap[rec.date] = rec.status;
+      }
+    }
+
+    // Calculate semester day counts
+    let totalDays = 0;
+    let daysPassed = 0;
+    let daysLeft = 0;
+
+    if (user.semesterStart && user.semesterEnd) {
+      const start = new Date(user.semesterStart + "T00:00:00");
+      const end = new Date(user.semesterEnd + "T00:00:00");
+      const today = new Date(todayStr + "T00:00:00");
+      totalDays = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      daysPassed = Math.max(0, Math.round((today - start) / (1000 * 60 * 60 * 24)));
+      daysLeft = Math.max(0, totalDays - daysPassed);
+    }
+
     res.json({
       semesterStart: user.semesterStart,
       semesterEnd: user.semesterEnd,
       today: todayStr,
       todayDay: todayDayName,
+      totalDays,
+      daysPassed,
+      daysLeft,
+      heatmap: dateMap,
+      holidays: Array.from(holidaySet),
       subjects: dashboard,
     });
   } catch (error) {

@@ -256,12 +256,73 @@ function renderStatsBar(data) {
   `;
 }
 
+/* ===== SEMESTER HEATMAP ===== */
+function renderHeatmap(data) {
+  const container = document.getElementById("semesterHeatmap");
+
+  if (!data.semesterStart || !data.semesterEnd) {
+    container.innerHTML = "";
+    return;
+  }
+
+  const start = new Date(data.semesterStart + "T00:00:00");
+  const end = new Date(data.semesterEnd + "T00:00:00");
+  const today = new Date(data.today + "T00:00:00");
+  const holidaySet = new Set(data.holidays || []);
+  const heatmap = data.heatmap || {};
+
+  let cells = "";
+  for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const dayNum = d.getDate();
+
+    let cls = "hm-cell";
+    let title = dateStr;
+
+    if (holidaySet.has(dateStr)) {
+      cls += " hm-holiday";
+      title += " (Holiday)";
+    } else if (heatmap[dateStr] === "present") {
+      cls += " hm-present";
+      title += " (Present)";
+    } else if (heatmap[dateStr] === "absent") {
+      cls += " hm-absent";
+      title += " (Absent)";
+    } else if (d < today) {
+      cls += " hm-past";
+    } else if (d.getTime() === today.getTime()) {
+      cls += " hm-today";
+      title += " (Today)";
+    } else {
+      cls += " hm-future";
+    }
+
+    cells += `<div class="${cls}" title="${title}">${dayNum}</div>`;
+  }
+
+  container.innerHTML = `
+    <div class="heatmap-card">
+      <div class="heatmap-header">
+        <span class="heatmap-title">Days Left in Semester: <strong>${data.daysLeft}/${data.totalDays}</strong></span>
+        <div class="heatmap-legend">
+          <span class="hm-legend"><span class="hm-dot hm-present"></span>Present</span>
+          <span class="hm-legend"><span class="hm-dot hm-absent"></span>Absent</span>
+          <span class="hm-legend"><span class="hm-dot hm-holiday"></span>Holiday</span>
+          <span class="hm-legend"><span class="hm-dot hm-today"></span>Today</span>
+        </div>
+      </div>
+      <div class="heatmap-grid">${cells}</div>
+    </div>
+  `;
+}
+
 /* ===== MAIN RENDER ===== */
 function renderDashboard(data) {
   const grid = document.getElementById("subjectsGrid");
 
   renderSetupBanner(data);
   renderHolidayBanner();
+  renderHeatmap(data);
   renderStatsBar(data);
   renderTodaySection(data.subjects, data.todayDay);
   cachedSubjects = data.subjects;
