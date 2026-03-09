@@ -40,6 +40,19 @@ function countScheduledDays(startStr, endStr, subjectDays, holidaySet) {
   return count;
 }
 
+function buildEmptySubjectStatsMap(subjects) {
+  const map = {};
+  for (const subject of subjects) {
+    map[String(subject._id)] = {
+      total: 0,
+      present: 0,
+      noClass: 0,
+      todayStatus: null,
+    };
+  }
+  return map;
+}
+
 exports.markAttendance = async (req, res) => {
   try {
     const { subjectId, status, date } = req.body;
@@ -93,6 +106,11 @@ exports.getAttendanceStats = async (req, res) => {
   try {
     const { subjectId } = req.params;
 
+    const subject = await Subject.findOne({ _id: subjectId, userId: req.userId });
+    if (!subject) {
+      return res.status(404).json({ message: "Subject not found" });
+    }
+
     const total = await Attendance.countDocuments({
       subjectId,
       status: { $ne: "no_class" },
@@ -115,99 +133,143 @@ exports.getAttendanceStats = async (req, res) => {
   }
 };
 
+exports.getAttendanceByDate = async (req, res) => {
+  try {
+    const { date } = req.params;
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ message: "Date must be in YYYY-MM-DD format" });
+    }
+
+    const subjects = await Subject.find({ userId: req.userId }).select("_id");
+    const subjectIds = subjects.map((s) => s._id);
+
+    if (subjectIds.length === 0) {
+      return res.json({ date, statuses: {} });
+    }
+
+    const records = await Attendance.find({
+      subjectId: { $in: subjectIds },
+      date,
+    }).select("subjectId status");
+
+    const statuses = {};
+    for (const rec of records) {
+      statuses[String(rec.subjectId)] = rec.status;
+    }
+
+    res.json({ date, statuses });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getDashboard = async (req, res) => {
   try {
-    const user = await User.findById(req.userId).select(
-      "semesterStart semesterEnd",
-    );
-    const subjects = await Subject.find({ userId: req.userId });
-    const holidays = await Holiday.find({ userId: req.userId });
+    const [user, subjects, holidays] = await Promise.all([
+      User.findById(req.userId).select("semesterStart semesterEnd"),
+      Subject.find({ userId: req.userId }),
+      Holiday.find({ userId: req.userId }),
+    ]);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     const holidaySet = new Set(holidays.map((h) => h.date));
 
     const todayStr = getTodayStr();
     const todayDayName = DAY_NAMES[new Date().getDay()];
+    const subjectIds = subjects.map((s) => s._id);
+
+    const allRecords = await Attendance.find({
+      subjectId: { $in: subjectIds },
+    }).select("subjectId date status");
+
+    const subjectStatsMap = buildEmptySubjectStatsMap(subjects);
+
+    // Create a date → status map (if any subject was attended that day, it's "present")
+    const dateMap = {};
+    for (const rec of allRecords) {
+      const subjectKey = String(rec.subjectId);
+      const stats = subjectStatsMap[subjectKey];
+      if (!stats) continue;
+
+      if (rec.status === "present") {
+        stats.present += 1;
+        stats.total += 1;
+      } else if (rec.status === "absent") {
+        stats.total += 1;
+      } else if (rec.status === "no_class") {
+        stats.noClass += 1;
+      }
+
+      if (rec.date === todayStr) {
+        stats.todayStatus = rec.status;
+      }
+
+      if (rec.status === "no_class") {
+        continue;
+      }
+
+      if (!dateMap[rec.date] || rec.status === "present") {
+        dateMap[rec.date] = rec.status;
+      }
+    }
 
     const dashboard = [];
-
     for (const subject of subjects) {
-      const total = await Attendance.countDocuments({
-        subjectId: subject._id,
-        status: { $ne: "no_class" },
-      });
+      const stats = subjectStatsMap[String(subject._id)] || {
+        total: 0,
+        present: 0,
+        noClass: 0,
+        todayStatus: null,
+      };
 
-      const present = await Attendance.countDocuments({
-        subjectId: subject._id,
-        status: "present",
-      });
+      const percentage = stats.total === 0 ? 0 : (stats.present / stats.total) * 100;
 
-      const noClassCount = await Attendance.countDocuments({
-        subjectId: subject._id,
-        status: "no_class",
-      });
-
-      const percentage = total === 0 ? 0 : (present / total) * 100;
-
-      const expectedTotal = countScheduledDays(
+      const rawExpectedTotal = countScheduledDays(
         user.semesterStart,
         user.semesterEnd,
         subject.days,
         holidaySet,
       );
-
-      const effectiveTotal = expectedTotal > 0 ? expectedTotal - noClassCount : total;
+      const expectedTotal =
+        rawExpectedTotal > 0
+          ? Math.max(0, rawExpectedTotal - stats.noClass)
+          : 0;
 
       let canBunk = 0;
       let needToAttend = 0;
 
-      if (total > 0) {
+      if (stats.total > 0) {
         if (percentage >= 75) {
-          canBunk = Math.floor((present - 0.75 * total) / 0.75);
+          canBunk = Math.floor((stats.present - 0.75 * stats.total) / 0.75);
           if (canBunk < 0) canBunk = 0;
         } else {
-          needToAttend = Math.ceil((0.75 * total - present) / 0.25);
+          needToAttend = Math.ceil((0.75 * stats.total - stats.present) / 0.25);
           if (needToAttend < 0) needToAttend = 0;
         }
       }
 
-      const scheduledToday =
-        subject.days && subject.days.includes(todayDayName);
-
-      const todayAttendance = await Attendance.findOne({
-        subjectId: subject._id,
-        date: todayStr,
-      });
+      const scheduledToday = subject.days && subject.days.includes(todayDayName);
 
       dashboard.push({
         subjectId: subject._id,
         subject: subject.name,
         type: subject.type,
         days: subject.days || [],
-        totalClasses: total,
-        presentClasses: present,
-        noClassCount,
+        totalClasses: stats.total,
+        presentClasses: stats.present,
+        noClassCount: stats.noClass,
         expectedTotal,
         percentage: parseFloat(percentage.toFixed(2)),
-        isLow: percentage < 75 && total > 0,
+        isLow: percentage < 75 && stats.total > 0,
         canBunk,
         needToAttend,
         scheduledToday: !!scheduledToday,
-        todayStatus: todayAttendance ? todayAttendance.status : null,
+        todayStatus: stats.todayStatus,
       });
-    }
-
-    // Build heatmap data: all attendance records across all subjects for this user
-    const allSubjectIds = subjects.map((s) => s._id);
-    const allRecords = await Attendance.find({
-      subjectId: { $in: allSubjectIds },
-      status: { $ne: "no_class" },
-    }).select("date status");
-
-    // Create a date → status map (if any subject was attended that day, it's "present")
-    const dateMap = {};
-    for (const rec of allRecords) {
-      if (!dateMap[rec.date] || rec.status === "present") {
-        dateMap[rec.date] = rec.status;
-      }
     }
 
     // Calculate semester day counts

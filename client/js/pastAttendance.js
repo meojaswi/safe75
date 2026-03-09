@@ -8,6 +8,8 @@ let currentDate = new Date();
 let selectedDate = null;
 let allSubjects = [];
 let holidays = [];
+let attendanceByDate = {};
+let draftStatusBySubject = {};
 
 const DAY_NAMES = [
   "Sunday",
@@ -120,7 +122,7 @@ function nextMonth() {
 }
 
 // ===== DATE SELECTION =====
-function selectDate(dateStr) {
+async function selectDate(dateStr) {
   selectedDate = dateStr;
   const dateObj = new Date(dateStr + "T00:00:00");
   const dayName = DAY_NAMES[dateObj.getDay()];
@@ -132,8 +134,23 @@ function selectDate(dateStr) {
   // Re-render calendar to show selection
   renderCalendar();
 
-  // Load and show subjects for this date
-  displaySubjectsForDate(dateStr, dayName);
+  const container = document.getElementById("subjectsContainer");
+  container.innerHTML = '<p class="placeholder">Loading attendance...</p>';
+
+  try {
+    await loadAttendanceForDate(dateStr);
+    displaySubjectsForDate(dateStr, dayName);
+  } catch (error) {
+    container.innerHTML =
+      '<p class="placeholder">Failed to load attendance for this date</p>';
+    showToast("Error loading attendance: " + error.message, "error");
+  }
+}
+
+async function loadAttendanceForDate(dateStr) {
+  const data = await api.get("/api/attendance/date/" + encodeURIComponent(dateStr));
+  attendanceByDate = data.statuses || {};
+  draftStatusBySubject = { ...attendanceByDate };
 }
 
 // ===== DISPLAY SUBJECTS FOR SELECTED DATE =====
@@ -154,8 +171,7 @@ function displaySubjectsForDate(dateStr, dayName) {
   container.innerHTML = subjectsOnDay
     .map((subject) => {
       const subjectId = subject._id;
-      const statusKey = `status-${subjectId}`;
-      const defaultStatus = localStorage.getItem(statusKey) || "";
+      const defaultStatus = draftStatusBySubject[subjectId] || "";
 
       return `
         <div class="subject-attendance-card">
@@ -215,13 +231,13 @@ function displaySubjectsForDate(dateStr, dayName) {
 }
 
 function updateMarkedStatus(subjectId, status) {
-  localStorage.setItem(`status-${subjectId}`, status);
+  draftStatusBySubject[subjectId] = status;
 }
 
 // ===== MARK ATTENDANCE =====
 async function markPastAttendance(subjectId, dateStr) {
   try {
-    const status = localStorage.getItem(`status-${subjectId}`);
+    const status = draftStatusBySubject[subjectId];
 
     if (!status) {
       showToast("Please select an attendance status", "error");
@@ -232,8 +248,8 @@ async function markPastAttendance(subjectId, dateStr) {
 
     showToast("Attendance marked for " + dateStr, "success");
 
-    // Clear the stored status
-    localStorage.removeItem(`status-${subjectId}`);
+    attendanceByDate[subjectId] = status;
+    draftStatusBySubject[subjectId] = status;
 
     // Refresh display
     displaySubjectsForDate(

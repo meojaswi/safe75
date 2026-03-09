@@ -339,7 +339,7 @@ function renderDashboard(data) {
     return;
   }
 
-  grid.innerHTML = "";
+  grid.innerHTML = data.subjects.map(createSubjectCard).join("");
 }
 
 /* ===== LOAD ===== */
