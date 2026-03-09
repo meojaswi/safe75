@@ -9,76 +9,81 @@
   </head>
 
   <body>
-    <nav class="navbar">
-      <div class="container">
-        <a href="dashboard.html" class="navbar-brand">Safe75</a>
-        <div class="navbar-right">
+    <div class="app-layout">
+      <aside class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="sidebar-brand">Safe 75</a>
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="sidebar-link">
+            <span class="link-icon">🏠</span> Dashboard
+          </a>
+          <a href="subjects.html" class="sidebar-link">
+            <span class="link-icon">📋</span> Subjects
+          </a>
+          <a href="holidays.html" class="sidebar-link active">
+            <span class="link-icon">🏖</span> Holidays
+          </a>
+          <a href="settings.html" class="sidebar-link">
+            <span class="link-icon">⚙</span> Settings
+          </a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="sidebar-user">Signed in as<br /><strong id="userName"></strong></div>
+          <a href="#" onclick="logout(); return false;" class="sidebar-link">
+            <span class="link-icon">🚪</span> Logout
+          </a>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+      <div class="main-content">
+        <header class="header-bar">
+          <button class="hamburger" onclick="toggleSidebar()">☰</button>
           <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
-          <button onclick="logout()" class="btn btn-ghost btn-sm">
-            Logout
-          </button>
-        </div>
-      </div>
-    </nav>
+        </header>
 
-    <div class="container">
-      <div class="page-header">
-        <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
-        <h1>Manage Holidays</h1>
-        <p>
-          Select dates on the calendar that are holidays. Attendance buttons will
-          be disabled on these days.
-        </p>
-      </div>
-
-      <div class="calendar-wrapper">
-        <div class="calendar-card">
-          <div class="calendar-nav">
-            <button
-              class="btn btn-ghost btn-sm"
-              id="prevMonth"
-              onclick="changeMonth(-1)"
-            >
-              ←
-            </button>
-            <h3 id="calendarTitle"></h3>
-            <button
-              class="btn btn-ghost btn-sm"
-              id="nextMonth"
-              onclick="changeMonth(1)"
-            >
-              →
-            </button>
+        <div class="main-inner">
+          <div class="page-header">
+            <h1>Manage Holidays</h1>
+            <p>
+              Select dates on the calendar that are holidays. Attendance buttons will
+              be disabled on these days.
+            </p>
           </div>
 
-          <div class="calendar-header">
-            <span>Sun</span>
-            <span>Mon</span>
-            <span>Tue</span>
-            <span>Wed</span>
-            <span>Thu</span>
-            <span>Fri</span>
-            <span>Sat</span>
+          <div class="calendar-wrapper">
+            <div class="calendar-card">
+              <div class="calendar-nav">
+                <button class="btn btn-ghost btn-sm" id="prevMonth" onclick="changeMonth(-1)">←</button>
+                <h3 id="calendarTitle"></h3>
+                <button class="btn btn-ghost btn-sm" id="nextMonth" onclick="changeMonth(1)">→</button>
+              </div>
+
+              <div class="calendar-header">
+                <span>Sun</span><span>Mon</span><span>Tue</span>
+                <span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+              </div>
+
+              <div class="calendar-grid" id="calendarGrid"></div>
+            </div>
+
+            <div class="holiday-sidebar">
+              <h3>
+                Holidays
+                <span class="holiday-count" id="holidayCount">0</span>
+              </h3>
+              <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 16px">
+                Click on any date to toggle it as a holiday.
+              </p>
+              <div id="holidayList" class="holiday-list"></div>
+            </div>
           </div>
-
-          <div class="calendar-grid" id="calendarGrid"></div>
-        </div>
-
-        <div class="holiday-sidebar">
-          <h3>
-            Holidays
-            <span class="holiday-count" id="holidayCount">0</span>
-          </h3>
-          <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 16px">
-            Click on any date to toggle it as a holiday.
-          </p>
-          <div id="holidayList" class="holiday-list"></div>
         </div>
       </div>
     </div>
 
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/holidays.js"></script>
   </body>
 </html>

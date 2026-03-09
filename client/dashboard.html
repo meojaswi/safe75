@@ -13,42 +13,60 @@
   </head>
 
   <body>
-    <nav class="navbar">
-      <div class="container">
-        <a href="dashboard.html" class="navbar-brand">Safe75</a>
-        <div class="navbar-right">
-          <span class="navbar-user">Hi, <span id="userName"></span></span>
-          <a href="holidays.html" class="btn btn-holiday-link btn-sm"
-            >🏖 Holidays</a
-          >
-          <a href="subjects.html" class="btn btn-ghost btn-sm">📋 Subjects</a>
-          <a href="settings.html" class="btn btn-ghost btn-sm">⚙ Settings</a>
-          <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
-          <button onclick="logout()" class="btn btn-ghost btn-sm">
-            Logout
-          </button>
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="sidebar-brand">Safe 75</a>
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="sidebar-link active">
+            <span class="link-icon">🏠</span> Dashboard
+          </a>
+          <a href="subjects.html" class="sidebar-link">
+            <span class="link-icon">📋</span> Subjects
+          </a>
+          <a href="holidays.html" class="sidebar-link">
+            <span class="link-icon">🏖</span> Holidays
+          </a>
+          <a href="settings.html" class="sidebar-link">
+            <span class="link-icon">⚙</span> Settings
+          </a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="sidebar-user">Signed in as<br /><strong id="userName"></strong></div>
+          <a href="#" onclick="logout(); return false;" class="sidebar-link">
+            <span class="link-icon">🚪</span> Logout
+          </a>
         </div>
-      </div>
-    </nav>
+      </aside>
+      <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <div class="container">
-      <div class="page-header">
-        <h1>Your Dashboard</h1>
-        <p>Track your attendance and stay safe.</p>
-      </div>
+      <!-- Main Content -->
+      <div class="main-content">
+        <header class="header-bar">
+          <button class="hamburger" onclick="toggleSidebar()">☰</button>
+          <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+        </header>
 
-      <div id="setupBanner"></div>
-      <div id="holidayBanner"></div>
+        <div class="main-inner">
+          <div class="page-header">
+            <h1>Your Dashboard</h1>
+            <p>Track your attendance and stay safe.</p>
+          </div>
 
-      <div class="stats-bar" id="statsBar"></div>
+          <div id="setupBanner"></div>
+          <div id="holidayBanner"></div>
 
-      <div id="todaySection"></div>
+          <div class="stats-bar" id="statsBar"></div>
 
-      <div id="allSubjectsSection">
-        <div class="subjects-grid" id="subjectsGrid">
-          <div class="empty-state">
-            <div class="loading-spinner" style="width: 32px; height: 32px"></div>
-            <p style="margin-top: 16px">Loading your subjects...</p>
+          <div id="todaySection"></div>
+
+          <div id="allSubjectsSection">
+            <div class="subjects-grid" id="subjectsGrid">
+              <div class="empty-state">
+                <div class="loading-spinner" style="width: 32px; height: 32px"></div>
+                <p style="margin-top: 16px">Loading your subjects...</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -58,6 +76,7 @@
 
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/dashboard.js"></script>
   </body>
 </html>

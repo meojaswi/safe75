@@ -9,86 +9,108 @@
   </head>
 
   <body>
-    <nav class="navbar">
-      <div class="container">
-        <a href="dashboard.html" class="navbar-brand">Safe75</a>
-        <div class="navbar-right">
-          <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
-          <button onclick="logout()" class="btn btn-ghost btn-sm">
-            Logout
-          </button>
+    <div class="app-layout">
+      <aside class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="sidebar-brand">Safe 75</a>
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="sidebar-link">
+            <span class="link-icon">🏠</span> Dashboard
+          </a>
+          <a href="subjects.html" class="sidebar-link">
+            <span class="link-icon">📋</span> Subjects
+          </a>
+          <a href="holidays.html" class="sidebar-link">
+            <span class="link-icon">🏖</span> Holidays
+          </a>
+          <a href="settings.html" class="sidebar-link">
+            <span class="link-icon">⚙</span> Settings
+          </a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="sidebar-user">Signed in as<br /><strong id="userName"></strong></div>
+          <a href="#" onclick="logout(); return false;" class="sidebar-link">
+            <span class="link-icon">🚪</span> Logout
+          </a>
         </div>
-      </div>
-    </nav>
+      </aside>
+      <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
-    <div class="container">
-      <div class="page-header">
-        <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
-      </div>
+      <div class="main-content">
+        <header class="header-bar">
+          <button class="hamburger" onclick="toggleSidebar()">☰</button>
+          <button class="theme-toggle" onclick="toggleTheme()">☀️</button>
+        </header>
 
-      <div class="form-card">
-        <h2>Add New Subject</h2>
-
-        <div id="alert" class="alert alert-error"></div>
-
-        <form id="addForm" onsubmit="return handleAddSubject(event)">
-          <div class="form-group">
-            <label for="name">Subject Name</label>
-            <input
-              type="text"
-              id="name"
-              placeholder="e.g. Data Structures"
-              required
-            />
+        <div class="main-inner">
+          <div class="page-header">
+            <h1>Add New Subject</h1>
+            <p>Add a subject to track its attendance.</p>
           </div>
 
-          <div class="form-group">
-            <label for="type">Type</label>
-            <select id="type">
-              <option value="theory">Theory</option>
-              <option value="lab">Lab</option>
-            </select>
-          </div>
+          <div class="form-card">
+            <div id="alert" class="alert alert-error"></div>
 
-          <div class="form-group">
-            <label>Scheduled Days</label>
-            <div class="days-grid">
-              <div class="day-checkbox">
-                <input type="checkbox" id="mon" value="Monday" />
-                <label for="mon">Mon</label>
+            <form id="addForm" onsubmit="return handleAddSubject(event)">
+              <div class="form-group">
+                <label for="name">Subject Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  placeholder="e.g. Data Structures"
+                  required
+                />
               </div>
-              <div class="day-checkbox">
-                <input type="checkbox" id="tue" value="Tuesday" />
-                <label for="tue">Tue</label>
-              </div>
-              <div class="day-checkbox">
-                <input type="checkbox" id="wed" value="Wednesday" />
-                <label for="wed">Wed</label>
-              </div>
-              <div class="day-checkbox">
-                <input type="checkbox" id="thu" value="Thursday" />
-                <label for="thu">Thu</label>
-              </div>
-              <div class="day-checkbox">
-                <input type="checkbox" id="fri" value="Friday" />
-                <label for="fri">Fri</label>
-              </div>
-              <div class="day-checkbox">
-                <input type="checkbox" id="sat" value="Saturday" />
-                <label for="sat">Sat</label>
-              </div>
-            </div>
-          </div>
 
-          <button type="submit" id="submitBtn" class="btn btn-primary btn-full">
-            Add Subject
-          </button>
-        </form>
+              <div class="form-group">
+                <label for="type">Type</label>
+                <select id="type">
+                  <option value="theory">Theory</option>
+                  <option value="lab">Lab</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Scheduled Days</label>
+                <div class="days-grid">
+                  <div class="day-checkbox">
+                    <input type="checkbox" id="mon" value="Monday" />
+                    <label for="mon">Mon</label>
+                  </div>
+                  <div class="day-checkbox">
+                    <input type="checkbox" id="tue" value="Tuesday" />
+                    <label for="tue">Tue</label>
+                  </div>
+                  <div class="day-checkbox">
+                    <input type="checkbox" id="wed" value="Wednesday" />
+                    <label for="wed">Wed</label>
+                  </div>
+                  <div class="day-checkbox">
+                    <input type="checkbox" id="thu" value="Thursday" />
+                    <label for="thu">Thu</label>
+                  </div>
+                  <div class="day-checkbox">
+                    <input type="checkbox" id="fri" value="Friday" />
+                    <label for="fri">Fri</label>
+                  </div>
+                  <div class="day-checkbox">
+                    <input type="checkbox" id="sat" value="Saturday" />
+                    <label for="sat">Sat</label>
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" id="submitBtn" class="btn btn-primary btn-full">
+                Add Subject
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
 
     <script src="js/api.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
     <script src="js/addSubject.js"></script>
   </body>
 </html>
