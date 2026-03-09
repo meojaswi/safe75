@@ -883,6 +883,33 @@ body {
   text-decoration: underline;
 }
 
+/* ===== AUTH DIVIDER ===== */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Center the Google Sign-In button */
+.google-signin-button {
+  display: flex;
+  justify-content: center;
+  margin-top: 4px;
+  min-height: 44px;
+}
+
+
 /* ===== LOADING ===== */
 .loading-spinner {
   display: inline-block;

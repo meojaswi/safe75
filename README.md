@@ -103,7 +103,12 @@ Example:
 PORT=3000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
 ```
+
+For Google Sign-In, add `http://localhost:3000` in Google Cloud Console under:
+OAuth Client -> Authorized JavaScript origins.
 
 ---
 

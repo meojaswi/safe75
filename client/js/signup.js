@@ -1,4 +1,5 @@
 redirectIfLoggedIn();
+initGoogleAuth("signup_with");
 
 async function handleSignup(e) {
   e.preventDefault();

@@ -16,7 +16,14 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: false, // optional for OAuth users
+      default: null,
+    },
+    googleId: {
+      type: String,
+      default: null,
+      unique: true,
+      sparse: true, // allows multiple null values
     },
     semesterStart: {
       type: String,
