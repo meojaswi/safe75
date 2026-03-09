@@ -476,18 +476,29 @@ body {
   font-weight: 600;
 }
 
-/* ===== HEADER BAR ===== */
-.header-bar {
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-  padding: 14px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+.sidebar-theme {
+  width: 100%;
+  margin-top: 4px;
+  border-radius: var(--radius-sm);
+  padding: 8px;
+  font-size: 1.1rem;
+}
+
+/* ===== HAMBURGER (mobile only) ===== */
+.hamburger {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 300;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 1.4rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  backdrop-filter: blur(12px);
 }
 
 /* ===== MAIN CONTENT AREA ===== */
@@ -503,16 +514,6 @@ body {
   padding: 24px 32px;
 }
 
-/* ===== HAMBURGER (MOBILE) ===== */
-.hamburger {
-  display: none;
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 4px;
-}
 
 .sidebar-overlay {
   display: none;
@@ -542,10 +543,6 @@ body {
 
   .hamburger {
     display: block;
-  }
-
-  .header-bar {
-    justify-content: space-between;
   }
 }
 
@@ -1519,6 +1516,16 @@ body {
   color: #fff;
 }
 
+/* Light mode: accent is white so we hard-code teal for the button */
+[data-theme="light"] .action-btn.add {
+  background: #1a8a7a;
+  color: #fff;
+}
+
+[data-theme="light"] .action-btn.add:hover {
+  background: #167a6c;
+}
+
 .action-btn.add:hover {
   background: var(--accent-hover);
   transform: translateY(-1px);
@@ -1526,13 +1533,19 @@ body {
 }
 
 .action-btn.delete {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border: 1px solid var(--danger);
+  background: rgba(255, 96, 128, 0.12);
+  color: #ff4060;
+  border: 1px solid #ff4060;
+}
+
+[data-theme="light"] .action-btn.delete {
+  background: rgba(255, 96, 128, 0.15);
+  color: #ff6080;
+  border: 1px solid rgba(255, 96, 128, 0.6);
 }
 
 .action-btn.delete:hover {
-  background: var(--danger);
+  background: #f04060;
   color: #fff;
   transform: translateY(-1px);
 }
