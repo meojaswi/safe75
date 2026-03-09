@@ -1491,3 +1491,104 @@ body {
 .edit-btns {
   margin-top: 10px;
 }
+
+/* ===== ACTION BUTTONS ROW ===== */
+.action-btns-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  border: none;
+  font-family: inherit;
+}
+
+.action-btn.add {
+  background: var(--accent);
+  color: #fff;
+}
+
+.action-btn.add:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+.action-btn.delete {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+
+.action-btn.delete:hover {
+  background: var(--danger);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+/* ===== DELETE PANEL ===== */
+.delete-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-bottom: 20px;
+  animation: pageIn 0.2s ease-out;
+}
+
+.delete-panel h3 {
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.delete-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.delete-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.delete-item-name {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.delete-item-btn {
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+}
+
+.delete-item-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}

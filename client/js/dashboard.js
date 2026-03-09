@@ -264,6 +264,7 @@ function renderDashboard(data) {
   renderHolidayBanner();
   renderStatsBar(data);
   renderTodaySection(data.subjects, data.todayDay);
+  cachedSubjects = data.subjects;
 
   if (data.subjects.length === 0) {
     grid.innerHTML = `
@@ -378,6 +379,39 @@ async function deleteSubject(subjectId, btn) {
     showToast(error.message, "error");
     document.querySelector(".dialog-overlay")?.remove();
   }
+}
+
+/* ===== DELETE PANEL ===== */
+let cachedSubjects = [];
+
+function openDeletePanel() {
+  const existing = document.querySelector(".delete-panel");
+  if (existing) {
+    existing.remove();
+    return;
+  }
+
+  if (cachedSubjects.length === 0) {
+    showToast("No subjects to delete", "error");
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.className = "delete-panel";
+  panel.innerHTML = `
+    <h3>Select a subject to delete</h3>
+    <div class="delete-list">
+      ${cachedSubjects.map((s) => `
+        <div class="delete-item" id="del-${s.subjectId}">
+          <span class="delete-item-name">${s.subject}</span>
+          <button class="delete-item-btn" onclick="confirmDelete('${s.subjectId}', '${s.subject.replace(/'/g, "\\'")}')">Delete</button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  const setupBanner = document.getElementById("setupBanner");
+  setupBanner.parentNode.insertBefore(panel, setupBanner);
 }
 
 loadDashboard();
