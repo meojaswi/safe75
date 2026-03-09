@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mark Past Attendance — Safe75</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/theme.js"></script>
+  </head>
+
+  <body>
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="sidebar-brand">Safe 75</a>
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="sidebar-link">
+            <span class="link-icon">🏠</span> Dashboard
+          </a>
+          <a href="subjects.html" class="sidebar-link">
+            <span class="link-icon">📋</span> Subjects
+          </a>
+          <a href="holidays.html" class="sidebar-link">
+            <span class="link-icon">🏖</span> Holidays
+          </a>
+          <a href="past-attendance.html" class="sidebar-link active">
+            <span class="link-icon">📅</span> Mark Past Attendance
+          </a>
+          <a href="settings.html" class="sidebar-link">
+            <span class="link-icon">⚙</span> Settings
+          </a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="sidebar-user">
+            Signed in as<br /><strong id="userName"></strong>
+          </div>
+          <a
+            href="#"
+            onclick="
+              logout();
+              return false;
+            "
+            class="sidebar-link"
+          >
+            <span class="link-icon">🚪</span> Logout
+          </a>
+          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">
+            ☀️
+          </button>
+        </div>
+      </aside>
+      <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="toggleSidebar()"
+      ></div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+
+        <div class="main-inner">
+          <div class="page-header">
+            <h1>Mark Past Attendance</h1>
+            <p>Update attendance records for previous dates</p>
+          </div>
+
+          <div class="past-attendance-container">
+            <!-- Date Selector Section -->
+            <div class="calendar-card">
+              <h3>📅 Select Date</h3>
+              <div class="date-selector">
+                <div class="date-picker-header">
+                  <button
+                    class="btn-icon"
+                    onclick="previousMonth()"
+                    title="Previous month"
+                  >
+                    ◀
+                  </button>
+                  <h4
+                    id="currentMonth"
+                    style="flex: 1; text-align: center; margin: 0"
+                  ></h4>
+                  <button
+                    class="btn-icon"
+                    onclick="nextMonth()"
+                    title="Next month"
+                  >
+                    ▶
+                  </button>
+                </div>
+                <div class="calendar" id="calendar"></div>
+              </div>
+
+              <div class="selected-date-info">
+                <div>
+                  <label>Selected Date:</label>
+                  <span id="selectedDateDisplay" class="date-display"
+                    >No date selected</span
+                  >
+                </div>
+                <div>
+                  <label>Day:</label>
+                  <span id="selectedDayDisplay" class="day-display">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Subjects for Selected Date -->
+            <div class="calendar-card">
+              <h3>📚 Subjects on Selected Date</h3>
+              <div id="subjectsContainer" class="subjects-list">
+                <p class="placeholder">Select a date to see subjects</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div id="toast" class="toast"></div>
+      </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/pastAttendance.js"></script>
+  </body>
+</html>

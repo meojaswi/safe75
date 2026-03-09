@@ -28,19 +28,37 @@
           <a href="holidays.html" class="sidebar-link">
             <span class="link-icon">🏖</span> Holidays
           </a>
+          <a href="past-attendance.html" class="sidebar-link">
+            <span class="link-icon">📅</span> Mark Past Attendance
+          </a>
           <a href="settings.html" class="sidebar-link">
             <span class="link-icon">⚙</span> Settings
           </a>
         </nav>
         <div class="sidebar-bottom">
-          <div class="sidebar-user">Signed in as<br /><strong id="userName"></strong></div>
-          <a href="#" onclick="logout(); return false;" class="sidebar-link">
+          <div class="sidebar-user">
+            Signed in as<br /><strong id="userName"></strong>
+          </div>
+          <a
+            href="#"
+            onclick="
+              logout();
+              return false;
+            "
+            class="sidebar-link"
+          >
             <span class="link-icon">🚪</span> Logout
           </a>
-          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">☀️</button>
+          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">
+            ☀️
+          </button>
         </div>
       </aside>
-      <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+      <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="toggleSidebar()"
+      ></div>
 
       <!-- Main Content -->
       <div class="main-content">
@@ -54,7 +72,9 @@
 
           <div class="action-btns-row">
             <a href="add-subject.html" class="action-btn add">＋ Add Subject</a>
-            <button class="action-btn delete" onclick="openDeletePanel()">🗑 Delete Subject</button>
+            <button class="action-btn delete" onclick="openDeletePanel()">
+              🗑 Delete Subject
+            </button>
           </div>
 
           <div id="semesterHeatmap"></div>
@@ -69,7 +89,10 @@
           <div id="allSubjectsSection">
             <div class="subjects-grid" id="subjectsGrid">
               <div class="empty-state">
-                <div class="loading-spinner" style="width: 32px; height: 32px"></div>
+                <div
+                  class="loading-spinner"
+                  style="width: 32px; height: 32px"
+                ></div>
                 <p style="margin-top: 16px">Loading your subjects...</p>
               </div>
             </div>

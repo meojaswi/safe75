@@ -23,19 +23,37 @@
           <a href="holidays.html" class="sidebar-link">
             <span class="link-icon">🏖</span> Holidays
           </a>
+          <a href="past-attendance.html" class="sidebar-link">
+            <span class="link-icon">📅</span> Mark Past Attendance
+          </a>
           <a href="settings.html" class="sidebar-link">
             <span class="link-icon">⚙</span> Settings
           </a>
         </nav>
         <div class="sidebar-bottom">
-          <div class="sidebar-user">Signed in as<br /><strong id="userName"></strong></div>
-          <a href="#" onclick="logout(); return false;" class="sidebar-link">
+          <div class="sidebar-user">
+            Signed in as<br /><strong id="userName"></strong>
+          </div>
+          <a
+            href="#"
+            onclick="
+              logout();
+              return false;
+            "
+            class="sidebar-link"
+          >
             <span class="link-icon">🚪</span> Logout
           </a>
-          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">☀️</button>
+          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">
+            ☀️
+          </button>
         </div>
       </aside>
-      <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+      <div
+        class="sidebar-overlay"
+        id="sidebarOverlay"
+        onclick="toggleSidebar()"
+      ></div>
 
       <div class="main-content">
         <button class="hamburger" onclick="toggleSidebar()">☰</button>
@@ -49,7 +67,7 @@
           <div class="form-card">
             <div id="alert" class="alert alert-error"></div>
 
-            <form id="addForm" onsubmit="return handleAddSubject(event)">
+            <form id="addForm" onsubmit="return handleAddSubject(event);">
               <div class="form-group">
                 <label for="name">Subject Name</label>
                 <input
@@ -98,7 +116,11 @@
                 </div>
               </div>
 
-              <button type="submit" id="submitBtn" class="btn btn-primary btn-full">
+              <button
+                type="submit"
+                id="submitBtn"
+                class="btn btn-primary btn-full"
+              >
                 Add Subject
               </button>
             </form>
