@@ -12,17 +12,17 @@
   --text-secondary: #8b8fa3;
   --text-muted: #5a5e72;
 
-  --accent: #00d4aa;
-  --accent-hover: #00eabc;
-  --accent-glow: rgba(0, 212, 170, 0.15);
-  --accent-subtle: rgba(0, 212, 170, 0.08);
+  --accent: #2dd4a8;
+  --accent-hover: #40e0b8;
+  --accent-glow: rgba(45, 212, 168, 0.15);
+  --accent-subtle: rgba(45, 212, 168, 0.08);
 
   --warning: #f0a030;
   --warning-bg: rgba(240, 160, 48, 0.1);
   --danger: #f04060;
   --danger-bg: rgba(240, 64, 96, 0.1);
-  --success: #00d4aa;
-  --success-bg: rgba(0, 212, 170, 0.1);
+  --success: #2dd4a8;
+  --success-bg: rgba(45, 212, 168, 0.1);
 
   --border: rgba(255, 255, 255, 0.06);
   --border-hover: rgba(255, 255, 255, 0.12);
@@ -35,7 +35,7 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 30px rgba(0, 212, 170, 0.1);
+  --shadow-glow: 0 0 30px rgba(45, 212, 168, 0.1);
 
   --transition-fast: 0.15s ease;
   --transition: 0.25s ease;
@@ -1600,6 +1600,44 @@ body {
   background: linear-gradient(135deg, #1e6b9a 0%, #1a8a7a 40%, #30b8a0 70%, #45c9a8 100%);
   min-height: 100vh;
   animation: none;
+  color: #fff;
+}
+
+/* Dark mode landing page */
+[data-theme="dark"] .landing-page,
+:root .landing-page {
+  background: linear-gradient(135deg, #0a1628 0%, #0f2030 40%, #132a3a 70%, #163540 100%);
+}
+
+[data-theme="light"] .landing-page {
+  background: linear-gradient(135deg, #1e6b9a 0%, #1a8a7a 40%, #30b8a0 70%, #45c9a8 100%);
+}
+
+[data-theme="dark"] .feature-card,
+:root .feature-card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .feature-card:hover,
+:root .feature-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="dark"] .landing-features,
+:root .landing-features {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .landing-cta,
+:root .landing-cta {
+  background: var(--accent);
+  color: #0f1117;
+}
+
+[data-theme="light"] .landing-cta {
+  background: #fff;
+  color: #1a6b8a;
 }
 
 /* Landing Nav */
