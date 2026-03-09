@@ -10,77 +10,79 @@
     <title>Safe75 — Student Attendance Tracker</title>
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="stylesheet" href="css/style.css" />
-    <script src="js/theme.js"></script>
   </head>
 
-  <body>
-    <button class="theme-toggle" onclick="toggleTheme()" style="position: fixed; top: 16px; right: 16px; z-index: 100;">☀️</button>
-    <div class="auth-container">
-      <div class="auth-card">
-        <div class="logo">
-          <h1>Safe75</h1>
-          <p>Stay above 75%. Always.</p>
-        </div>
-
-        <h2>Create Account</h2>
-
-        <div id="alert" class="alert alert-error"></div>
-
-        <form id="signupForm" onsubmit="return handleSignup(event)">
-          <div class="form-group">
-            <label for="name">Name</label>
-            <input
-              type="text"
-              id="name"
-              placeholder="Enter your name"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              placeholder="Enter your email"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              placeholder="Min 6 characters"
-              minlength="6"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              placeholder="Re-enter your password"
-              required
-            />
-          </div>
-
-          <button type="submit" id="submitBtn" class="btn btn-primary btn-full">
-            Create Account
-          </button>
-        </form>
-
-        <div class="auth-footer">
-          Already have an account? <a href="login.html">Login</a>
+  <body class="landing-page">
+    <!-- Landing Nav -->
+    <nav class="landing-nav">
+      <div class="landing-nav-inner">
+        <span class="landing-brand">Safe75</span>
+        <div class="landing-nav-btns">
+          <a href="login.html" class="landing-btn outline">Login</a>
+          <a href="signup.html" class="landing-btn outline">Sign up</a>
         </div>
       </div>
-    </div>
+    </nav>
 
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/signup.js"></script>
+    <!-- Hero Section -->
+    <section class="landing-hero">
+      <div class="landing-hero-content">
+        <h1 class="landing-title">
+          Track Your<br />Attendance.<br />Stay Above 75%
+        </h1>
+        <p class="landing-subtitle">
+          Smart attendance tracking for college students. Know your bunking limits, manage holidays, and never fall below the safe zone.
+        </p>
+        <a href="login.html" class="landing-cta">Start Tracking</a>
+      </div>
+      <div class="landing-hero-visual">
+        <!-- Hero image — save your illustration as client/hero.png -->
+        <img src="hero.png" alt="Attendance tracking illustration" class="landing-hero-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <!-- Fallback if no hero.png exists -->
+        <div class="landing-hero-fallback" style="display:none;">
+          <div class="mock-phone">
+            <div class="mock-phone-header">Attendance</div>
+            <div class="mock-phone-grid">
+              <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+              <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span>
+              <span>8</span><span class="green">9</span><span class="green">10</span><span>11</span><span class="green">12</span><span>13</span><span>14</span>
+              <span class="orange">15</span><span class="green">16</span><span class="green">17</span><span>18</span><span class="green">19</span><span>20</span><span>21</span>
+            </div>
+            <div class="mock-feature">✓ Track attendance</div>
+            <div class="mock-feature">✓ Predict safe bunks</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="landing-features">
+      <div class="landing-features-inner">
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Real-time Tracking</h3>
+          <p>See your attendance percentage update instantly as you mark classes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧮</div>
+          <h3>Bunk Calculator</h3>
+          <p>Know exactly how many classes you can safely skip.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📅</div>
+          <h3>Smart Scheduling</h3>
+          <p>Auto-suggests today's subjects. Mark attendance in one tap.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏖</div>
+          <h3>Holiday Manager</h3>
+          <p>Mark holidays on a calendar. They're automatically excluded.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="landing-footer">
+      <p>© 2026 Safe75 — Built for students, by students.</p>
+    </footer>
   </body>
 </html>
