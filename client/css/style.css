@@ -977,6 +977,18 @@ body {
   min-height: 44px;
 }
 
+.google-signin-fallback {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-input);
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
 
 /* ===== LOADING ===== */
 .loading-spinner {

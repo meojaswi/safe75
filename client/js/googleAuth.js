@@ -17,6 +17,21 @@ function clearGoogleError() {
   alertEl.classList.remove("show");
 }
 
+function renderGoogleFallback(buttonContainer, message) {
+  if (!buttonContainer) {
+    return;
+  }
+
+  buttonContainer.innerHTML = "";
+  buttonContainer.style.display = "flex";
+
+  const fallback = document.createElement("div");
+  fallback.className = "google-signin-fallback";
+  fallback.textContent = message;
+
+  buttonContainer.appendChild(fallback);
+}
+
 function waitForGoogleSdk(timeoutMs = 5000) {
   return new Promise((resolve, reject) => {
     const startTime = Date.now();
@@ -69,7 +84,10 @@ async function initGoogleAuth(buttonText = "signin_with") {
     const config = await api.get("/api/auth/google-config");
 
     if (!config.clientId) {
-      buttonContainer.style.display = "none";
+      renderGoogleFallback(
+        buttonContainer,
+        "Google Sign-In is currently unavailable. Please use email and password.",
+      );
       return;
     }
 
@@ -94,8 +112,15 @@ async function initGoogleAuth(buttonText = "signin_with") {
       width,
     });
   } catch (error) {
-    buttonContainer.style.display = "none";
-    showGoogleError(error.message);
+    renderGoogleFallback(
+      buttonContainer,
+      "Google Sign-In could not be loaded right now. Please refresh or use email and password.",
+    );
+    showGoogleError(
+      error && error.message
+        ? error.message
+        : "Google Sign-In is currently unavailable.",
+    );
   }
 }
 
