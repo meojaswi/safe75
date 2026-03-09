@@ -26,6 +26,14 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/index.html"));
 });
 
+app.use("/api", (req, res) => {
+  res.status(404).json({ message: "API route not found" });
+});
+
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, "../client/404.html"));
+});
+
 const PORT = process.env.PORT || 3000;
 
 connectDB().then(() => {

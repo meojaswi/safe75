@@ -302,3 +302,68 @@ exports.getDashboard = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getLatestBunk = async (req, res) => {
+  try {
+    const [user, subjects] = await Promise.all([
+      User.findById(req.userId).select("semesterStart semesterEnd"),
+      Subject.find({ userId: req.userId }).select("_id name"),
+    ]);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (subjects.length === 0) {
+      return res.json({ latestBunk: null });
+    }
+
+    const subjectMap = new Map(
+      subjects.map((subject) => [String(subject._id), subject.name]),
+    );
+
+    const attendanceQuery = {
+      subjectId: { $in: subjects.map((subject) => subject._id) },
+      status: "absent",
+    };
+
+    if (user.semesterStart && user.semesterEnd && user.semesterStart <= user.semesterEnd) {
+      const todayStr = getTodayStr();
+      const currentSemesterEnd =
+        user.semesterEnd < todayStr ? user.semesterEnd : todayStr;
+
+      if (user.semesterStart > currentSemesterEnd) {
+        return res.json({ latestBunk: null });
+      }
+
+      attendanceQuery.date = {
+        $gte: user.semesterStart,
+        $lte: currentSemesterEnd,
+      };
+    }
+
+    const latestAbsent = await Attendance.findOne(attendanceQuery)
+      .sort({ date: -1, _id: -1 })
+      .select("subjectId date");
+
+    if (!latestAbsent) {
+      return res.json({ latestBunk: null });
+    }
+
+    if (
+      typeof latestAbsent.date !== "string" ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(latestAbsent.date)
+    ) {
+      return res.json({ latestBunk: null });
+    }
+
+    res.json({
+      latestBunk: {
+        subject: subjectMap.get(String(latestAbsent.subjectId)) || "Unknown Subject",
+        date: latestAbsent.date,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

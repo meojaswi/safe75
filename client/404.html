@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Oops! This page bunked today. Safe75 custom 404 page."
+    />
+    <title>404 - This Page Bunked Today</title>
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/theme.js"></script>
+  </head>
+  <body>
+    <button
+      class="theme-toggle"
+      onclick="toggleTheme()"
+      style="position: fixed; top: 16px; right: 16px; z-index: 100;"
+    >
+      ☀️
+    </button>
+
+    <main class="notfound-wrap">
+      <section class="notfound-card">
+        <p class="notfound-code">404</p>
+        <h1 class="notfound-title">This Page Bunked Today</h1>
+        <p class="notfound-path">
+          You opened: <span id="missingPath"></span>
+        </p>
+
+        <p id="bunkMessage" class="notfound-message">Checking bunk records...</p>
+
+        <div class="notfound-actions">
+          <a href="/" class="btn btn-primary">Go Home</a>
+          <a id="secondaryAction" href="/login.html" class="btn btn-ghost">Login</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="/js/notFound.js"></script>
+  </body>
+</html>
