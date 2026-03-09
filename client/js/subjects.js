@@ -2,8 +2,14 @@ if (!requireAuth()) {
   // Will redirect to login
 }
 
+const userNameEl = document.getElementById("userName");
+if (userNameEl) {
+  userNameEl.textContent = getUserName();
+}
+
 const CIRCLE_RADIUS = 35;
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
+let cachedSubjects = [];
 
 function getProgressColor(pct) {
   if (pct >= 75) return "var(--accent)";
@@ -37,6 +43,10 @@ function createProgressRing(percentage) {
 function createSubjectCard(item) {
   const badgeClass = item.type === "lab" ? "badge-lab" : "badge-theory";
   const badgeText = item.type === "lab" ? "Lab" : "Theory";
+  const safeSubjectName = escapeHtml(item.subject);
+  const subjectNameForJs = item.subject
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'");
 
   let bunkHtml = "";
   if (item.totalClasses > 0) {
@@ -61,7 +71,7 @@ function createSubjectCard(item) {
     <div class="subject-card" id="card-${item.subjectId}">
       <div class="subject-card-header">
         <div class="subject-info">
-          <h3>${escapeHtml(item.subject)}</h3>
+          <h3>${safeSubjectName}</h3>
           <span class="subject-badge ${badgeClass}">${badgeText} · ${daysStr}</span>
         </div>
         ${createProgressRing(item.percentage)}
@@ -84,6 +94,17 @@ function createSubjectCard(item) {
       </div>
 
       ${bunkHtml}
+
+      <div class="subject-actions">
+        <div class="mark-btns"></div>
+        <button
+          class="btn btn-sm btn-danger-ghost"
+          onclick="confirmDelete('${item.subjectId}', '${subjectNameForJs}')"
+          title="Delete subject"
+        >
+          🗑 Delete
+        </button>
+      </div>
     </div>
   `;
 }
@@ -93,6 +114,7 @@ async function loadSubjects() {
 
   try {
     const data = await api.get("/api/attendance/dashboard");
+    cachedSubjects = data.subjects || [];
 
     if (data.subjects.length === 0) {
       grid.innerHTML = `
@@ -117,6 +139,41 @@ async function loadSubjects() {
       </div>
     `;
   }
+}
+
+function openDeletePanel() {
+  const existing = document.querySelector(".delete-panel");
+  if (existing) {
+    existing.remove();
+    return;
+  }
+
+  if (cachedSubjects.length === 0) {
+    showToast("No subjects to delete", "error");
+    return;
+  }
+
+  const panel = document.createElement("div");
+  panel.className = "delete-panel";
+  panel.innerHTML = `
+    <h3>Select a subject to delete</h3>
+    <div class="delete-list">
+      ${cachedSubjects.map((s) => `
+        <div class="delete-item" id="del-${s.subjectId}">
+          <span class="delete-item-name">${escapeHtml(s.subject)}</span>
+          <button
+            class="delete-item-btn"
+            onclick="confirmDelete('${s.subjectId}', '${s.subject.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}')"
+          >
+            Delete
+          </button>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  const grid = document.getElementById("subjectsGrid");
+  grid.parentNode.insertBefore(panel, grid);
 }
 
 async function markAttendance(subjectId, status) {
