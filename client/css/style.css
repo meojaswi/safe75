@@ -1727,6 +1727,47 @@ body {
   gap: 6px;
   max-height: 400px;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.28) rgba(255, 255, 255, 0.05);
+}
+
+.holiday-list::-webkit-scrollbar {
+  width: 10px;
+}
+
+.holiday-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 999px;
+}
+
+.holiday-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.holiday-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+  background-clip: padding-box;
+}
+
+[data-theme="light"] .holiday-list {
+  scrollbar-color: rgba(15, 23, 42, 0.3) rgba(255, 255, 255, 0.32);
+}
+
+[data-theme="light"] .holiday-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+[data-theme="light"] .holiday-list::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.28);
+  background-clip: padding-box;
+}
+
+[data-theme="light"] .holiday-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 23, 42, 0.4);
+  background-clip: padding-box;
 }
 
 .holiday-item {
