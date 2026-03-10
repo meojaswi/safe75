@@ -278,6 +278,20 @@ function escapeHtml(text) {
 }
 
 // Initialize
+document.addEventListener("DOMContentLoaded", () => {
+  const prevBtn = document.getElementById("prevMonthPast");
+  const nextBtn = document.getElementById("nextMonthPast");
+
+  if (prevBtn) {
+    prevBtn.addEventListener("click", previousMonth);
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener("click", nextMonth);
+  }
+
+  initializePage();
+});
+
 document.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
@@ -295,5 +309,3 @@ document.addEventListener("click", (event) => {
     markPastAttendance(pastSubjectId, pastDate);
   }
 });
-
-initializePage();
