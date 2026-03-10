@@ -13,6 +13,14 @@ const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
 
 let isHolidayToday = false;
 let dashboardData = null;
+const EDITABLE_DAYS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
 
 function getTodayStr() {
   const d = new Date();
@@ -35,6 +43,10 @@ function escapeHtml(text) {
   const div = document.createElement("div");
   div.textContent = text;
   return div.innerHTML;
+}
+
+function escapeAttr(text) {
+  return escapeHtml(text).replace(/"/g, "&quot;");
 }
 
 function createProgressRing(percentage) {
@@ -100,7 +112,10 @@ function renderTodaySection(subjects, todayDay) {
       <div class="today-card" id="today-${item.subjectId}">
         <div class="today-card-header">
           <h4>${escapeHtml(item.subject)}</h4>
-          <span class="subject-badge ${item.type === "lab" ? "badge-lab" : "badge-theory"}">${item.type === "lab" ? "Lab" : "Theory"}</span>
+          <div class="today-card-tools">
+            <span class="subject-badge ${item.type === "lab" ? "badge-lab" : "badge-theory"}">${item.type === "lab" ? "Lab" : "Theory"}</span>
+            <button class="btn btn-sm btn-ghost btn-edit-subject" onclick="openEditSubjectDialog('${item.subjectId}')">Edit</button>
+          </div>
         </div>
         ${actionHtml}
       </div>
@@ -367,6 +382,110 @@ function toggleEdit(subjectId) {
   const el = document.getElementById("edit-" + subjectId);
   if (el) {
     el.style.display = el.style.display === "none" ? "flex" : "none";
+  }
+}
+
+function closeEditSubjectDialog() {
+  document.getElementById("editSubjectOverlay")?.remove();
+}
+
+function openEditSubjectDialog(subjectId) {
+  const subject = cachedSubjects.find((s) => String(s.subjectId) === String(subjectId));
+  if (!subject) {
+    showToast("Subject not found", "error");
+    return;
+  }
+
+  closeEditSubjectDialog();
+
+  const selectedDays = new Set(Array.isArray(subject.days) ? subject.days : []);
+  const dayCheckboxes = EDITABLE_DAYS.map((day) => {
+    const id = "edit-day-" + day.toLowerCase().slice(0, 3);
+    const checked = selectedDays.has(day) ? "checked" : "";
+    return `
+      <div class="day-checkbox">
+        <input type="checkbox" id="${id}" value="${day}" ${checked} />
+        <label for="${id}">${day.slice(0, 3)}</label>
+      </div>
+    `;
+  }).join("");
+
+  const overlay = document.createElement("div");
+  overlay.className = "dialog-overlay";
+  overlay.id = "editSubjectOverlay";
+  overlay.innerHTML = `
+    <div class="dialog edit-subject-dialog">
+      <h3>Edit Subject</h3>
+      <p>Update the subject details and schedule.</p>
+
+      <div class="form-group">
+        <label for="editSubjectName">Subject Name</label>
+        <input id="editSubjectName" type="text" value="${escapeAttr(subject.subject || "")}" />
+      </div>
+
+      <div class="form-group">
+        <label for="editSubjectType">Type</label>
+        <select id="editSubjectType">
+          <option value="theory" ${subject.type === "theory" ? "selected" : ""}>Theory</option>
+          <option value="lab" ${subject.type === "lab" ? "selected" : ""}>Lab</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Scheduled Days</label>
+        <div class="days-grid">${dayCheckboxes}</div>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="btn btn-sm btn-ghost" onclick="closeEditSubjectDialog()">Cancel</button>
+        <button class="btn btn-sm btn-primary" onclick="saveSubjectEdit('${subject.subjectId}', this)">Save</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  overlay.addEventListener("click", (e) => {
+    if (e.target === overlay) {
+      closeEditSubjectDialog();
+    }
+  });
+}
+
+async function saveSubjectEdit(subjectId, btn) {
+  const nameInput = document.getElementById("editSubjectName");
+  const typeInput = document.getElementById("editSubjectType");
+
+  if (!nameInput || !typeInput) {
+    showToast("Edit form not available", "error");
+    return;
+  }
+
+  const name = nameInput.value.trim();
+  const type = typeInput.value;
+  const selectedDayNodes = document.querySelectorAll(
+    '#editSubjectOverlay .day-checkbox input[type="checkbox"]:checked',
+  );
+  const days = Array.from(selectedDayNodes).map((node) => node.value);
+
+  if (!name) {
+    showToast("Subject name is required", "error");
+    nameInput.focus();
+    return;
+  }
+
+  btn.innerHTML = '<span class="loading-spinner"></span>';
+  btn.classList.add("loading");
+
+  try {
+    await api.put("/api/subjects/" + subjectId, { name, type, days });
+
+    showToast("Subject updated successfully ✓", "success");
+    closeEditSubjectDialog();
+    await loadDashboard();
+  } catch (error) {
+    showToast(error.message, "error");
+    btn.textContent = "Save";
+    btn.classList.remove("loading");
   }
 }
 

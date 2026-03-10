@@ -1501,6 +1501,18 @@ body {
   font-weight: 600;
 }
 
+.today-card-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-edit-subject {
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
 .today-card .mark-btns {
   display: flex;
   gap: 8px;
@@ -1630,6 +1642,10 @@ body {
 
 .edit-btns {
   margin-top: 10px;
+}
+
+.edit-subject-dialog {
+  max-width: 520px;
 }
 
 /* ===== ACTION BUTTONS ROW ===== */

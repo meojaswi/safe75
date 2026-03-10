@@ -1,6 +1,35 @@
 const Subject = require("../models/Subject");
 const Attendance = require("../models/Attendance");
 
+const ALLOWED_SUBJECT_TYPES = ["theory", "lab"];
+const ALLOWED_SCHEDULE_DAYS = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+
+function normalizeDays(days) {
+  if (!Array.isArray(days)) {
+    return [];
+  }
+
+  const unique = new Set();
+  for (const day of days) {
+    if (typeof day !== "string") continue;
+
+    const normalizedDay = day.trim();
+    if (ALLOWED_SCHEDULE_DAYS.includes(normalizedDay)) {
+      unique.add(normalizedDay);
+    }
+  }
+
+  return Array.from(unique);
+}
+
 exports.addSubject = async (req, res) => {
   try {
     const { name, type, days } = req.body;
@@ -32,6 +61,42 @@ exports.getSubjects = async (req, res) => {
     res.json(subjects);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateSubject = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const subject = await Subject.findOne({ _id: id, userId: req.userId });
+
+    if (!subject) {
+      return res.status(404).json({ message: "Subject not found" });
+    }
+
+    const name = (req.body.name || "").trim();
+    const nextType = (req.body.type || "").trim().toLowerCase();
+
+    if (!name) {
+      return res.status(400).json({ message: "Subject name is required" });
+    }
+
+    if (!ALLOWED_SUBJECT_TYPES.includes(nextType)) {
+      return res
+        .status(400)
+        .json({ message: "Type must be either theory or lab" });
+    }
+
+    subject.name = name;
+    subject.type = nextType;
+    subject.days = normalizeDays(req.body.days);
+    await subject.save();
+
+    return res.json({
+      message: "Subject updated",
+      subject,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 };
 
