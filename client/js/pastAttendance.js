@@ -159,6 +159,18 @@ function formatDateStr(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
+function formatReadableDate(dateStr) {
+  const date = new Date(`${dateStr}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return dateStr;
+
+  return date.toLocaleDateString("en-IN", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 function getDateValidationError(dateStr) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
     return "Invalid date selected";
@@ -280,7 +292,8 @@ async function selectDate(dateStr) {
   const dayName = DAY_NAMES[dateObj.getDay()];
 
   // Update display
-  document.getElementById("selectedDateDisplay").textContent = dateStr;
+  document.getElementById("selectedDateDisplay").textContent =
+    formatReadableDate(dateStr);
   document.getElementById("selectedDayDisplay").textContent = dayName;
 
   // Re-render calendar to show selection
@@ -526,6 +539,7 @@ function setupPastSubjectDeck() {
 // ===== DISPLAY SUBJECTS FOR SELECTED DATE =====
 function displaySubjectsForDate(dateStr, dayName) {
   const container = document.getElementById("subjectsContainer");
+  const formattedDate = formatReadableDate(dateStr);
 
   // Filter subjects scheduled on this day
   const subjectsOnDay = allSubjects.filter(
@@ -559,7 +573,7 @@ function displaySubjectsForDate(dateStr, dayName) {
                 ${subjectType} · ${shortDay}
               </span>
             </div>
-            <span class="past-subject-date-chip">${dateStr}</span>
+            <span class="past-subject-date-chip">${formattedDate}</span>
           </div>
 
           <div class="subject-actions past-subject-actions">
@@ -580,7 +594,7 @@ function displaySubjectsForDate(dateStr, dayName) {
                 data-attendance-status="absent"
                 aria-pressed="${isAbsent ? "true" : "false"}"
               >
-                ✕ Absent
+                ✗ Absent
               </button>
               <button
                 type="button"
@@ -589,7 +603,7 @@ function displaySubjectsForDate(dateStr, dayName) {
                 data-attendance-status="no_class"
                 aria-pressed="${isNoClass ? "true" : "false"}"
               >
-                ⊘ No Class
+                — No Class
               </button>
             </div>
           </div>
