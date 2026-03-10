@@ -25,6 +25,14 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true, // allows multiple null values
     },
+    passwordResetToken: {
+      type: String,
+      default: null,
+    },
+    passwordResetExpires: {
+      type: Date,
+      default: null,
+    },
     semesterStart: {
       type: String,
       default: null,

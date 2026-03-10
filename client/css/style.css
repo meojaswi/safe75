@@ -934,6 +934,31 @@ body {
 }
 
 /* ===== AUTH FOOTER ===== */
+.auth-helper {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.86rem;
+  margin: -10px 0 20px;
+}
+
+.auth-inline-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: -6px 0 16px;
+}
+
+.auth-inline-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.auth-inline-link:hover {
+  text-decoration: underline;
+  color: var(--accent-hover);
+}
+
 .auth-footer {
   text-align: center;
   margin-top: 24px;

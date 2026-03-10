@@ -13,6 +13,7 @@ Safe75 is a student attendance tracking application that helps students monitor 
 * AI-assisted **subject detection from timetable**
 * **Warning when attendance goes below 75%**
 * Dashboard showing **subject-wise attendance**
+* Password reset via **email (Gmail SMTP)**
 
 ---
 
@@ -38,6 +39,7 @@ Safe75 is a student attendance tracking application that helps students monitor 
 * Multer (file uploads)
 * JWT (authentication)
 * bcrypt (password hashing)
+* Nodemailer (password reset emails)
 
 ---
 
@@ -105,6 +107,11 @@ MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
 GOOGLE_CLIENT_ID=your_google_oauth_client_id
 GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+GMAIL_USER=your_gmail_address
+GMAIL_APP_PASSWORD=your_gmail_app_password
+CLIENT_BASE_URL=http://localhost:3000
+# optional:
+MAIL_FROM=Safe75 Support <your_gmail_address>
 ```
 
 For Google Sign-In, add `http://localhost:3000` in Google Cloud Console under:
