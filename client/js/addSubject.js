@@ -49,3 +49,10 @@ async function handleAddSubject(e) {
 
   return false;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("addForm");
+  if (form) {
+    form.addEventListener("submit", handleAddSubject);
+  }
+});

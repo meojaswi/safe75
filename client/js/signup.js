@@ -1,6 +1,13 @@
 redirectIfLoggedIn();
 initGoogleAuth("signup_with");
 
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("signupForm");
+  if (form) {
+    form.addEventListener("submit", handleSignup);
+  }
+});
+
 async function handleSignup(e) {
   e.preventDefault();
 

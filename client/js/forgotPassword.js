@@ -34,3 +34,10 @@ async function handleForgotPassword(event) {
 
   return false;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("forgotPasswordForm");
+  if (form) {
+    form.addEventListener("submit", handleForgotPassword);
+  }
+});

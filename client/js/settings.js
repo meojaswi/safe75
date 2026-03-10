@@ -89,3 +89,10 @@ async function handleSaveSemester(e) {
 }
 
 loadSemester();
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("semesterForm");
+  if (form) {
+    form.addEventListener("submit", handleSaveSemester);
+  }
+});

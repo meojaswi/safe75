@@ -80,3 +80,10 @@ async function handleResetPassword(event) {
 
   return false;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("resetPasswordForm");
+  if (form) {
+    form.addEventListener("submit", handleResetPassword);
+  }
+});
