@@ -98,7 +98,10 @@ exports.markAttendance = async (req, res) => {
       attendance,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Mark attendance error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -129,7 +132,10 @@ exports.getAttendanceStats = async (req, res) => {
       attendancePercentage: percentage.toFixed(2),
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get attendance stats error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -160,7 +166,10 @@ exports.getAttendanceByDate = async (req, res) => {
 
     res.json({ date, statuses });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get attendance by date error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -299,7 +308,10 @@ exports.getDashboard = async (req, res) => {
       subjects: dashboard,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get dashboard error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -364,6 +376,9 @@ exports.getLatestBunk = async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get latest bunk error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };

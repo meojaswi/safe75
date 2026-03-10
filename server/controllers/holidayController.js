@@ -10,7 +10,10 @@ exports.getHolidays = async (req, res) => {
 
     res.json(dates);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get holidays error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -31,7 +34,10 @@ exports.addHoliday = async (req, res) => {
 
     res.json({ message: "Holiday added" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Add holiday error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -43,7 +49,10 @@ exports.removeHoliday = async (req, res) => {
 
     res.json({ message: "Holiday removed" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Remove holiday error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -69,6 +78,9 @@ exports.addMultipleHolidays = async (req, res) => {
 
     res.json({ message: `${dates.length} holidays updated` });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Add multiple holidays error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };

@@ -60,7 +60,10 @@ exports.getSubjects = async (req, res) => {
 
     res.json(subjects);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get subjects error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -96,7 +99,10 @@ exports.updateSubject = async (req, res) => {
       subject,
     });
   } catch (error) {
-    return res.status(500).json({ error: error.message });
+    console.error("Update subject error:", error);
+    return res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -115,6 +121,9 @@ exports.deleteSubject = async (req, res) => {
 
     res.json({ message: "Subject deleted" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Delete subject error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };

@@ -131,7 +131,10 @@ exports.signup = async (req, res) => {
 
     res.json({ message: "Account created", token, name: user.name });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Signup error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -168,7 +171,10 @@ exports.login = async (req, res) => {
 
     res.json({ token, name: user.name });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Login error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -216,7 +222,10 @@ exports.forgotPassword = async (req, res) => {
 
     return res.json({ message: RESET_EMAIL_RESPONSE_MESSAGE });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Forgot password error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -259,7 +268,10 @@ exports.resetPassword = async (req, res) => {
       message: "Password reset successful. Please log in with your new password.",
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Reset password error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -328,8 +340,7 @@ exports.googleAuth = async (req, res) => {
 
     res.json({ token, name: user.name });
   } catch (error) {
-    res
-      .status(401)
-      .json({ message: "Google authentication failed", error: error.message });
+    console.error("Google authentication error:", error);
+    res.status(401).json({ message: "Google authentication failed" });
   }
 };

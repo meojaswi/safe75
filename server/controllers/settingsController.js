@@ -11,7 +11,10 @@ exports.getSemester = async (req, res) => {
       semesterEnd: user.semesterEnd,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Get semester error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
 
@@ -35,6 +38,9 @@ exports.setSemester = async (req, res) => {
 
     res.json({ message: "Semester dates updated" });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Set semester error:", error);
+    res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
   }
 };
