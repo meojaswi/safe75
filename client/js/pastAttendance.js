@@ -15,6 +15,14 @@ let holidays = [];
 let attendanceByDate = {};
 let draftStatusBySubject = {};
 let semesterStart = null;
+let pastDeckIndex = 0;
+let pastDeckCards = [];
+let pastDeckStage = null;
+let pastDeckTouchStartX = null;
+let pastDeckTouchStartY = null;
+let pastDeckMaxCardHeight = 0;
+let pastDeckResizeListenerAttached = false;
+const PAST_DECK_SWIPE_THRESHOLD_PX = 48;
 
 const DAY_NAMES = [
   "Sunday",
@@ -279,6 +287,7 @@ async function selectDate(dateStr) {
   renderCalendar();
 
   const container = document.getElementById("subjectsContainer");
+  resetPastSubjectDeck();
   container.innerHTML = '<p class="placeholder">Loading attendance...</p>';
 
   try {
@@ -299,6 +308,221 @@ async function loadAttendanceForDate(dateStr) {
   draftStatusBySubject = { ...attendanceByDate };
 }
 
+function resetPastSubjectDeck() {
+  pastDeckCards = [];
+  pastDeckStage = null;
+  pastDeckMaxCardHeight = 0;
+  pastDeckIndex = 0;
+}
+
+function getPastDeckControls() {
+  return {
+    prevBtn: document.getElementById("pastDeckPrev"),
+    nextBtn: document.getElementById("pastDeckNext"),
+    statusEl: document.getElementById("pastDeckStatus"),
+  };
+}
+
+function setPastCardInteractive(card, isActive) {
+  if ("inert" in card) {
+    card.inert = !isActive;
+  }
+
+  const controls = card.querySelectorAll("button, a, input, select, textarea");
+  controls.forEach((control) => {
+    if (isActive) {
+      if (control.hasAttribute("data-prev-tabindex")) {
+        control.setAttribute(
+          "tabindex",
+          control.getAttribute("data-prev-tabindex") || "0",
+        );
+        control.removeAttribute("data-prev-tabindex");
+      } else if (control.getAttribute("tabindex") === "-1") {
+        control.removeAttribute("tabindex");
+      }
+      return;
+    }
+
+    if (
+      control.hasAttribute("tabindex") &&
+      !control.hasAttribute("data-prev-tabindex")
+    ) {
+      control.setAttribute(
+        "data-prev-tabindex",
+        control.getAttribute("tabindex") || "0",
+      );
+    }
+
+    control.setAttribute("tabindex", "-1");
+  });
+}
+
+function syncPastDeckStageHeight() {
+  if (!pastDeckStage || pastDeckCards.length === 0) return;
+
+  if (!pastDeckMaxCardHeight) {
+    const measuredHeights = pastDeckCards.map((card) =>
+      Math.ceil(
+        card.getBoundingClientRect().height ||
+          card.offsetHeight ||
+          card.scrollHeight ||
+          0,
+      ),
+    );
+    pastDeckMaxCardHeight = Math.max(...measuredHeights, 0);
+  }
+
+  const stackPadding = pastDeckCards.length > 1 ? 36 : 8;
+  pastDeckStage.style.height = `${pastDeckMaxCardHeight + stackPadding}px`;
+}
+
+function refreshPastDeckMeasurements() {
+  pastDeckMaxCardHeight = 0;
+  syncPastDeckStageHeight();
+}
+
+function updatePastDeckControls() {
+  const { prevBtn, nextBtn, statusEl } = getPastDeckControls();
+  const total = pastDeckCards.length;
+  const disableNav = total <= 1;
+
+  if (statusEl) {
+    if (total === 0) {
+      statusEl.textContent = "No subjects";
+    } else {
+      statusEl.textContent = `Subject ${pastDeckIndex + 1} of ${total}`;
+    }
+  }
+
+  if (prevBtn) prevBtn.disabled = disableNav;
+  if (nextBtn) nextBtn.disabled = disableNav;
+}
+
+function updatePastSubjectDeck() {
+  const total = pastDeckCards.length;
+
+  if (total === 0) {
+    updatePastDeckControls();
+    return;
+  }
+
+  if (pastDeckIndex >= total) {
+    pastDeckIndex = 0;
+  }
+
+  const nextIndex = (pastDeckIndex + 1) % total;
+  const afterNextIndex = (pastDeckIndex + 2) % total;
+  const prevIndex = (pastDeckIndex - 1 + total) % total;
+
+  pastDeckCards.forEach((card, idx) => {
+    let deckState = "hidden";
+
+    if (idx === pastDeckIndex) {
+      deckState = "active";
+    } else if (idx === nextIndex && total > 1) {
+      deckState = "next";
+    } else if (idx === afterNextIndex && total > 2) {
+      deckState = "after-next";
+    } else if (idx === prevIndex && total > 1) {
+      deckState = "prev";
+    }
+
+    card.setAttribute("data-deck-state", deckState);
+    card.setAttribute("aria-hidden", deckState === "active" ? "false" : "true");
+    setPastCardInteractive(card, deckState === "active");
+  });
+
+  updatePastDeckControls();
+  syncPastDeckStageHeight();
+}
+
+function goToNextPastSubject() {
+  const total = pastDeckCards.length;
+  if (total <= 1) return;
+
+  pastDeckIndex = (pastDeckIndex + 1) % total;
+  updatePastSubjectDeck();
+}
+
+function goToPreviousPastSubject() {
+  const total = pastDeckCards.length;
+  if (total <= 1) return;
+
+  pastDeckIndex = (pastDeckIndex - 1 + total) % total;
+  updatePastSubjectDeck();
+}
+
+function handlePastDeckTouchStart(event) {
+  const touch = event.changedTouches?.[0];
+  if (!touch) return;
+
+  pastDeckTouchStartX = touch.clientX;
+  pastDeckTouchStartY = touch.clientY;
+}
+
+function handlePastDeckTouchEnd(event) {
+  const touch = event.changedTouches?.[0];
+  if (!touch || pastDeckTouchStartX === null || pastDeckTouchStartY === null) {
+    return;
+  }
+
+  const deltaX = touch.clientX - pastDeckTouchStartX;
+  const deltaY = touch.clientY - pastDeckTouchStartY;
+  const absDeltaX = Math.abs(deltaX);
+  const absDeltaY = Math.abs(deltaY);
+
+  pastDeckTouchStartX = null;
+  pastDeckTouchStartY = null;
+
+  if (
+    absDeltaX < PAST_DECK_SWIPE_THRESHOLD_PX ||
+    absDeltaX <= absDeltaY
+  ) {
+    return;
+  }
+
+  if (deltaX < 0) {
+    goToNextPastSubject();
+    return;
+  }
+
+  goToPreviousPastSubject();
+}
+
+function setupPastSubjectDeck() {
+  pastDeckStage = document.getElementById("pastSubjectsDeckStage");
+
+  if (!pastDeckStage) {
+    resetPastSubjectDeck();
+    return;
+  }
+
+  pastDeckCards = Array.from(pastDeckStage.querySelectorAll(".deck-card"));
+  if (pastDeckCards.length === 0) {
+    resetPastSubjectDeck();
+    return;
+  }
+
+  if (pastDeckIndex >= pastDeckCards.length) {
+    pastDeckIndex = 0;
+  }
+
+  pastDeckStage.addEventListener("touchstart", handlePastDeckTouchStart, {
+    passive: true,
+  });
+  pastDeckStage.addEventListener("touchend", handlePastDeckTouchEnd, {
+    passive: true,
+  });
+
+  if (!pastDeckResizeListenerAttached) {
+    window.addEventListener("resize", refreshPastDeckMeasurements);
+    pastDeckResizeListenerAttached = true;
+  }
+
+  refreshPastDeckMeasurements();
+  updatePastSubjectDeck();
+}
+
 // ===== DISPLAY SUBJECTS FOR SELECTED DATE =====
 function displaySubjectsForDate(dateStr, dayName) {
   const container = document.getElementById("subjectsContainer");
@@ -309,68 +533,72 @@ function displaySubjectsForDate(dateStr, dayName) {
   );
 
   if (subjectsOnDay.length === 0) {
+    resetPastSubjectDeck();
     container.innerHTML =
       '<p class="placeholder">No subjects scheduled on this day</p>';
     return;
   }
 
-  container.innerHTML = subjectsOnDay
+  const cardsHtml = subjectsOnDay
     .map((subject) => {
       const subjectId = subject._id;
       const defaultStatus = draftStatusBySubject[subjectId] || "";
+      const subjectType = subject.type === "lab" ? "Lab" : "Theory";
+      const badgeClass = subject.type === "lab" ? "badge-lab" : "badge-theory";
+      const shortDay = dayName.slice(0, 3).toUpperCase();
+      const isPresent = defaultStatus === "present";
+      const isAbsent = defaultStatus === "absent";
+      const isNoClass = defaultStatus === "no_class";
 
       return `
-        <div class="subject-attendance-card">
-          <div class="subject-header">
-            <div>
-              <h4>${escapeHtml(subject.name)}</h4>
-              <span class="subject-badge ${subject.type === "lab" ? "badge-lab" : "badge-theory"}">
-                ${subject.type === "lab" ? "Lab" : "Theory"}
+        <div class="subject-card subject-attendance-card deck-card" id="past-card-${subjectId}">
+          <div class="subject-card-header past-subject-header">
+            <div class="subject-info">
+              <h3>${escapeHtml(subject.name)}</h3>
+              <span class="subject-badge ${badgeClass}">
+                ${subjectType} · ${shortDay}
               </span>
+            </div>
+            <span class="past-subject-date-chip">${dateStr}</span>
+          </div>
+
+          <div class="subject-actions past-subject-actions">
+            <div class="mark-btns past-mark-btns">
+              <button
+                type="button"
+                class="btn btn-sm btn-present past-status-btn ${isPresent ? "is-selected" : ""}"
+                data-attendance-subject-id="${subjectId}"
+                data-attendance-status="present"
+                aria-pressed="${isPresent ? "true" : "false"}"
+              >
+                ✓ Present
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-absent past-status-btn ${isAbsent ? "is-selected" : ""}"
+                data-attendance-subject-id="${subjectId}"
+                data-attendance-status="absent"
+                aria-pressed="${isAbsent ? "true" : "false"}"
+              >
+                ✕ Absent
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-noclass past-status-btn ${isNoClass ? "is-selected" : ""}"
+                data-attendance-subject-id="${subjectId}"
+                data-attendance-status="no_class"
+                aria-pressed="${isNoClass ? "true" : "false"}"
+              >
+                ⊘ No Class
+              </button>
             </div>
           </div>
 
-          <div class="attendance-status-options">
-            <label>
-              <input
-                type="radio"
-                name="attendance-${subjectId}"
-                value="present"
-                data-attendance-subject-id="${subjectId}"
-                data-attendance-status="present"
-                ${defaultStatus === "present" ? "checked" : ""}
-              />
-              <span class="radio-label present">✓ Present</span>
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="attendance-${subjectId}"
-                value="absent"
-                data-attendance-subject-id="${subjectId}"
-                data-attendance-status="absent"
-                ${defaultStatus === "absent" ? "checked" : ""}
-              />
-              <span class="radio-label absent">✕ Absent</span>
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="attendance-${subjectId}"
-                value="no_class"
-                data-attendance-subject-id="${subjectId}"
-                data-attendance-status="no_class"
-                ${defaultStatus === "no_class" ? "checked" : ""}
-              />
-              <span class="radio-label noclass">⊘ No Class</span>
-            </label>
-          </div>
-
           <button
-            class="btn btn-sm"
+            class="btn btn-sm btn-primary past-save-btn"
+            type="button"
             data-mark-past-subject-id="${subjectId}"
             data-mark-past-date="${dateStr}"
-            style="width: 100%; margin-top: 12px;"
           >
             Save Attendance
           </button>
@@ -378,10 +606,63 @@ function displaySubjectsForDate(dateStr, dayName) {
       `;
     })
     .join("");
+
+  container.innerHTML = `
+    <section class="subject-deck past-subject-deck" aria-label="Subjects on selected date">
+      <div class="subject-deck-shell past-subject-deck-shell">
+        <button
+          id="pastDeckPrev"
+          class="subject-deck-side-btn"
+          type="button"
+          data-past-deck-prev
+          aria-label="Show previous subject"
+        >
+          ◀
+        </button>
+        <div
+          id="pastSubjectsDeckStage"
+          class="subject-deck-stage past-subject-deck-stage"
+          tabindex="0"
+          role="region"
+          aria-roledescription="carousel"
+          aria-label="Past attendance subjects"
+        >
+          ${cardsHtml}
+        </div>
+        <button
+          id="pastDeckNext"
+          class="subject-deck-side-btn"
+          type="button"
+          data-past-deck-next
+          aria-label="Show next subject"
+        >
+          ▶
+        </button>
+      </div>
+      <div class="subject-deck-meta">
+        <span id="pastDeckStatus" class="subject-deck-status" aria-live="polite"></span>
+        <span class="subject-deck-help">Use arrow keys or swipe</span>
+      </div>
+    </section>
+  `;
+
+  setupPastSubjectDeck();
 }
 
 function updateMarkedStatus(subjectId, status) {
   draftStatusBySubject[subjectId] = status;
+
+  const statusButtons = document.querySelectorAll(
+    "[data-attendance-subject-id]",
+  );
+  statusButtons.forEach((button) => {
+    if (!(button instanceof HTMLElement)) return;
+    if (button.getAttribute("data-attendance-subject-id") !== subjectId) return;
+
+    const isSelected = button.getAttribute("data-attendance-status") === status;
+    button.classList.toggle("is-selected", isSelected);
+    button.setAttribute("aria-pressed", isSelected ? "true" : "false");
+  });
 }
 
 // ===== MARK ATTENDANCE =====
@@ -442,16 +723,54 @@ document.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
 
-  const statusSubjectId = target.getAttribute("data-attendance-subject-id");
-  const statusValue = target.getAttribute("data-attendance-status");
+  if (target.closest("[data-past-deck-prev]")) {
+    goToPreviousPastSubject();
+    return;
+  }
+
+  if (target.closest("[data-past-deck-next]")) {
+    goToNextPastSubject();
+    return;
+  }
+
+  const statusButton = target.closest("[data-attendance-subject-id]");
+  const statusSubjectId = statusButton?.getAttribute("data-attendance-subject-id");
+  const statusValue = statusButton?.getAttribute("data-attendance-status");
   if (statusSubjectId && statusValue) {
     updateMarkedStatus(statusSubjectId, statusValue);
     return;
   }
 
-  const pastSubjectId = target.getAttribute("data-mark-past-subject-id");
-  const pastDate = target.getAttribute("data-mark-past-date");
+  const saveButton = target.closest("[data-mark-past-subject-id]");
+  const pastSubjectId = saveButton?.getAttribute("data-mark-past-subject-id");
+  const pastDate = saveButton?.getAttribute("data-mark-past-date");
   if (pastSubjectId && pastDate) {
     markPastAttendance(pastSubjectId, pastDate);
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (pastDeckCards.length <= 1) return;
+
+  const target = event.target;
+  if (target instanceof HTMLElement) {
+    const tagName = target.tagName;
+    const isEditable =
+      target.isContentEditable ||
+      tagName === "INPUT" ||
+      tagName === "TEXTAREA" ||
+      tagName === "SELECT";
+    if (isEditable) return;
+  }
+
+  if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+    event.preventDefault();
+    goToNextPastSubject();
+    return;
+  }
+
+  if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+    event.preventDefault();
+    goToPreviousPastSubject();
   }
 });

@@ -756,6 +756,14 @@ body {
   right: 0;
 }
 
+#pastDeckPrev {
+  left: 0;
+}
+
+#pastDeckNext {
+  right: 0;
+}
+
 .subject-deck-meta {
   display: flex;
   align-items: center;
@@ -2363,9 +2371,16 @@ body {
 }
 
 .subjects-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  display: block;
+}
+
+.past-subject-deck {
+  width: 100%;
+  margin: 10px 0 0;
+}
+
+.past-subject-deck-shell {
+  padding: 0 44px;
 }
 
 .subjects-list .placeholder {
@@ -2376,73 +2391,84 @@ body {
 }
 
 .subject-attendance-card {
-  background: var(--bg-card);
+  padding: 20px;
+}
+
+.subject-attendance-card .subject-card-header {
+  margin-bottom: 14px;
+}
+
+.subject-attendance-card .subject-info h3 {
+  font-size: 1rem;
+}
+
+.past-subject-header {
+  gap: 12px;
+}
+
+.past-subject-date-chip {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-input);
   border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 16px;
-  transition: all var(--transition);
 }
 
-.subject-attendance-card:hover {
-  border-color: var(--border-hover);
-  background: var(--bg-card-hover);
-}
-
-.subject-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.past-subject-actions {
   margin-bottom: 12px;
 }
 
-.subject-header h4 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin: 0;
+.past-subject-actions .past-mark-btns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
 }
 
-.attendance-status-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 12px 0;
+.past-subject-actions .past-mark-btns .btn {
+  width: 100%;
+  padding: 8px 10px;
 }
 
-.attendance-status-options label {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  font-size: 0.88rem;
+.past-status-btn {
+  position: relative;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
 }
 
-.attendance-status-options input[type="radio"] {
-  cursor: pointer;
-  width: 16px;
-  height: 16px;
-  accent-color: var(--accent);
+.past-status-btn.is-selected {
+  transform: translateY(-1px);
 }
 
-.radio-label {
-  user-select: none;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: all var(--transition-fast);
+.past-status-btn.is-selected.btn-present {
+  background: rgba(0, 212, 170, 0.24);
+  border-color: rgba(0, 212, 170, 0.45);
+  box-shadow: 0 0 0 1px rgba(0, 212, 170, 0.2);
 }
 
-.radio-label.present {
-  color: var(--accent);
+.past-status-btn.is-selected.btn-absent {
+  background: rgba(240, 64, 96, 0.22);
+  border-color: rgba(240, 64, 96, 0.45);
+  box-shadow: 0 0 0 1px rgba(240, 64, 96, 0.2);
 }
 
-.radio-label.absent {
-  color: var(--danger);
+.past-status-btn.is-selected.btn-noclass {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
-.radio-label.noclass {
-  color: var(--text-muted);
+.past-save-btn {
+  width: 100%;
 }
 
 /* Topbar styling */
@@ -2528,6 +2554,14 @@ body {
 
   .selected-date-info {
     grid-template-columns: 1fr;
+  }
+
+  .past-subject-actions .past-mark-btns {
+    grid-template-columns: 1fr;
+  }
+
+  .past-subject-deck-shell {
+    padding: 0 36px;
   }
 
   .topbar {
