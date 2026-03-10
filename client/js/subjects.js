@@ -40,6 +40,31 @@ function createProgressRing(percentage) {
   `;
 }
 
+function buildAttendanceMessage(item) {
+  if (item.totalClasses <= 0) return "";
+
+  if (item.isLow) {
+    return `<div class="bunk-info danger">⚠ Attend next ${item.needToAttend} class${item.needToAttend !== 1 ? "es" : ""} to reach 75%</div>`;
+  }
+
+  if (item.percentage >= 100) {
+    if (item.canBunk > 0) {
+      return `<div class="bunk-info safe">🌟 Perfect attendance! You can still skip ${item.canBunk} class${item.canBunk !== 1 ? "es" : ""}</div>`;
+    }
+    return `<div class="bunk-info safe">🌟 Perfect attendance so far. Keep attending to build a safe buffer.</div>`;
+  }
+
+  if (item.canBunk > 0) {
+    return `<div class="bunk-info safe">✓ You can safely skip ${item.canBunk} class${item.canBunk !== 1 ? "es" : ""}</div>`;
+  }
+
+  if (item.percentage >= 90) {
+    return `<div class="bunk-info safe">✓ Excellent attendance. Stay regular to build bunk buffer.</div>`;
+  }
+
+  return `<div class="bunk-info warning">⚡ Right at the edge — don't miss any!</div>`;
+}
+
 function createSubjectCard(item) {
   const badgeClass = item.type === "lab" ? "badge-lab" : "badge-theory";
   const badgeText = item.type === "lab" ? "Lab" : "Theory";
@@ -48,16 +73,7 @@ function createSubjectCard(item) {
     .replace(/\\/g, "\\\\")
     .replace(/'/g, "\\'");
 
-  let bunkHtml = "";
-  if (item.totalClasses > 0) {
-    if (item.isLow) {
-      bunkHtml = `<div class="bunk-info danger">⚠ Attend next ${item.needToAttend} class${item.needToAttend !== 1 ? "es" : ""} to reach 75%</div>`;
-    } else if (item.canBunk > 0) {
-      bunkHtml = `<div class="bunk-info safe">✓ You can safely skip ${item.canBunk} class${item.canBunk !== 1 ? "es" : ""}</div>`;
-    } else {
-      bunkHtml = `<div class="bunk-info warning">⚡ Right at the edge — don't miss any!</div>`;
-    }
-  }
+  const bunkHtml = buildAttendanceMessage(item);
 
   const daysStr = item.days.length > 0
     ? item.days.map((d) => d.slice(0, 3)).join(", ")
