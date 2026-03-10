@@ -41,6 +41,38 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
+    profile: {
+      college: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+      branch: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+      semester: {
+        type: Number,
+        default: null,
+        min: 1,
+        max: 8,
+      },
+      section: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+      isConfigured: {
+        type: Boolean,
+        default: false,
+      },
+    },
   },
   { timestamps: true },
 );

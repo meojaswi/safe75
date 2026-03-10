@@ -9,6 +9,8 @@ const subjectRoutes = require("./routes/subjectRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const holidayRoutes = require("./routes/holidayRoutes");
 const settingsRoutes = require("./routes/settingsRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const configRoutes = require("./routes/configRoutes");
 
 const app = express();
 
@@ -54,6 +56,8 @@ app.use("/api/subjects", subjectRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/holidays", holidayRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/config", configRoutes);
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../client/index.html"));

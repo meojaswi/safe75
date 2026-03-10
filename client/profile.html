@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile — Safe75</title>
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="js/theme.js"></script>
+  </head>
+
+  <body style="visibility: hidden">
+    <div class="app-layout">
+      <aside class="sidebar" id="sidebar">
+        <a href="dashboard.html" class="sidebar-brand">Safe 75</a>
+        <nav class="sidebar-nav">
+          <a href="dashboard.html" class="sidebar-link">
+            <span class="link-icon">🏠</span> Dashboard
+          </a>
+          <a href="subjects.html" class="sidebar-link">
+            <span class="link-icon">📋</span> Subjects
+          </a>
+          <a href="holidays.html" class="sidebar-link">
+            <span class="link-icon">🏖</span> Holidays
+          </a>
+          <a href="past-attendance.html" class="sidebar-link">
+            <span class="link-icon">📅</span> Mark Past Attendance
+          </a>
+          <a href="settings.html" class="sidebar-link">
+            <span class="link-icon">⚙</span> Semester Timeline
+          </a>
+          <a href="profile.html" class="sidebar-link active" id="sidebarProfile">
+            <span class="link-icon">👤</span> Profile
+          </a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="sidebar-user">
+            Signed in as<br /><strong id="userName"></strong>
+          </div>
+          <a href="#" id="sidebarLogoutProfile" class="sidebar-link">
+            <span class="link-icon">🚪</span> Logout
+          </a>
+          <button class="theme-toggle sidebar-theme" id="sidebarThemeToggleProfile">
+            ☀️
+          </button>
+        </div>
+      </aside>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+      <div class="main-content">
+        <button class="hamburger" id="hamburgerProfile">☰</button>
+
+        <div class="main-inner">
+          <div class="page-header">
+            <h1>Your Profile</h1>
+            <p>Tell us about your college and class so we can auto-fill your setup.</p>
+          </div>
+
+          <div id="profileAlert" class="alert" style="display: none"></div>
+
+          <div class="form-card">
+            <h2>Class Details</h2>
+            <p class="text-muted" style="margin-bottom: 16px">
+              We use these details to find a matching class configuration. If we find one,
+              we will automatically set up your subjects, semester, and holidays.
+            </p>
+
+            <form id="profileForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="profileCollege">College</label>
+                  <input id="profileCollege" type="text" placeholder="e.g. ABC Institute of Technology" required />
+                </div>
+                <div class="form-group">
+                  <label for="profileBranch">Branch</label>
+                  <input id="profileBranch" type="text" placeholder="e.g. CSE" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="profileSemester">Semester</label>
+                  <select id="profileSemester" required>
+                    <option value="">Select</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="profileSection">Section</label>
+                  <input id="profileSection" type="text" placeholder="e.g. A" required />
+                </div>
+              </div>
+
+              <button type="submit" id="profileSaveBtn" class="btn btn-primary btn-full">
+                Save &amp; Auto-fill
+              </button>
+            </form>
+          </div>
+
+          <div class="form-card">
+            <h2>Current Configuration</h2>
+            <div class="profile-summary" id="profileSummary">
+              <p class="text-muted">Loading profile...</p>
+            </div>
+          </div>
+
+          <div class="form-card" id="adminConfigCard" style="display: none">
+            <h2>Admin: Class Configuration</h2>
+            <p class="text-muted" style="margin-bottom: 16px">
+              Create or update a shared class configuration. Students who select the same college,
+              branch, semester and section will be auto-configured.
+            </p>
+
+            <form id="configForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="configCollege">College</label>
+                  <input id="configCollege" type="text" required />
+                </div>
+                <div class="form-group">
+                  <label for="configBranch">Branch</label>
+                  <input id="configBranch" type="text" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="configSemester">Semester</label>
+                  <select id="configSemester" required>
+                    <option value="">Select</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="configSection">Section</label>
+                  <input id="configSection" type="text" required />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="configSemesterStart">Semester Start</label>
+                  <input id="configSemesterStart" type="date" required />
+                </div>
+                <div class="form-group">
+                  <label for="configSemesterEnd">Semester End</label>
+                  <input id="configSemesterEnd" type="date" required />
+                </div>
+              </div>
+
+              <hr class="section-divider" />
+
+              <h3>Subjects &amp; Schedule</h3>
+              <p class="text-muted" style="margin-bottom: 8px">
+                Add subjects and select the days they normally occur.
+              </p>
+              <div id="configSubjects"></div>
+              <button type="button" class="btn btn-ghost" id="addSubjectConfigBtn">
+                ＋ Add Subject
+              </button>
+
+              <hr class="section-divider" />
+
+              <h3>Holidays</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="configHolidayDate">Holiday Date</label>
+                  <input id="configHolidayDate" type="date" />
+                </div>
+                <div class="form-group" style="align-self: flex-end">
+                  <button type="button" class="btn btn-secondary" id="addHolidayConfigBtn">
+                    Add Holiday
+                  </button>
+                </div>
+              </div>
+              <div id="configHolidaysList" class="holiday-list"></div>
+
+              <button type="submit" id="configSaveBtn" class="btn btn-primary btn-full">
+                Save Class Config
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/sidebar.js"></script>
+    <script src="js/profile.js"></script>
+  </body>
+</html>
+
