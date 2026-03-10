@@ -367,25 +367,25 @@ body {
 }
 
 .btn-present {
-  background: var(--success-bg);
-  color: var(--success);
-  border: 1px solid rgba(34, 197, 94, 0.28);
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid #22c55e;
 }
 
 .btn-present:hover {
-  background: rgba(34, 197, 94, 0.24);
-  border-color: rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.25);
+  border-color: #22c55e;
 }
 
 .btn-absent {
-  background: var(--danger-bg);
-  color: var(--danger);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid #ef4444;
 }
 
 .btn-absent:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
 }
 
 .btn-holiday-link {
@@ -1848,14 +1848,14 @@ body {
 
 /* ===== NO CLASS BUTTON ===== */
 .btn-noclass {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-noclass:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--border-hover);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* ===== SEMESTER INFO ===== */
@@ -2510,15 +2510,17 @@ body {
 
 .past-subject-actions .past-mark-btns .btn {
   min-width: auto;
-  min-height: 42px;
-  padding: 8px 10px;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 0 1 auto;
-  font-size: 0.85rem;
-  overflow: visible;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
 }
 
 .past-status-btn {
@@ -2531,33 +2533,33 @@ body {
 }
 
 .past-status-btn.is-selected {
-  transform: translateY(-1px);
+  transform: translateY(0);
 }
 
 .past-status-btn.is-selected.btn-present {
-  background: rgba(34, 197, 94, 0.24);
-  border-color: rgba(34, 197, 94, 0.45);
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.2);
+  background: rgba(34, 197, 94, 0.35);
+  border-color: #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.3);
 }
 
 .past-status-btn.is-selected.btn-absent {
-  background: rgba(239, 68, 68, 0.22);
-  border-color: rgba(239, 68, 68, 0.45);
-  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.35);
+  border-color: #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
 }
 
 .past-status-btn.is-selected.btn-noclass {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: var(--border-hover);
-  color: var(--text-primary);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
 }
 
 .past-save-btn {
-  width: auto;
+  width: fit-content;
   display: block;
-  margin: 0 auto;
-  padding: 12px 40px;
+  margin: 16px auto 0;
+  padding: 10px 36px;
   border-radius: 8px;
 }
 
