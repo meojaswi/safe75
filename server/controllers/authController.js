@@ -49,8 +49,12 @@ function getMailTransporter() {
     return mailTransporter;
   }
 
-  const gmailUser = (process.env.GMAIL_USER || "").trim();
-  const gmailAppPassword = (process.env.GMAIL_APP_PASSWORD || "").trim();
+  const gmailUser = (process.env.GMAIL_USER || process.env.EMAIL_USER || "").trim();
+  const gmailAppPassword = (
+    process.env.GMAIL_APP_PASSWORD ||
+    process.env.EMAIL_PASS ||
+    ""
+  ).trim();
 
   if (!gmailUser || !gmailAppPassword) {
     throw new Error("Gmail mailer is not configured");
@@ -69,7 +73,7 @@ function getMailTransporter() {
 
 async function sendPasswordResetEmail(user, resetUrl) {
   const transporter = getMailTransporter();
-  const gmailUser = (process.env.GMAIL_USER || "").trim();
+  const gmailUser = (process.env.GMAIL_USER || process.env.EMAIL_USER || "").trim();
   const mailFrom = (process.env.MAIL_FROM || "").trim();
   const fromAddress = mailFrom || `Safe75 Support <${gmailUser}>`;
 
