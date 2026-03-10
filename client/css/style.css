@@ -42,68 +42,6 @@
   --transition-slow: 0.4s ease;
 }
 
-[data-theme="light"] {
-  --bg-primary: linear-gradient(
-    135deg,
-    #1e6b9a 0%,
-    #1a8a7a 40%,
-    #30b8a0 70%,
-    #45c9a8 100%
-  );
-  --bg-secondary: rgba(255, 255, 255, 0.12);
-  --bg-card: rgba(255, 255, 255, 0.15);
-  --bg-card-hover: rgba(255, 255, 255, 0.22);
-  --bg-input: rgba(255, 255, 255, 0.15);
-  --bg-input-focus: rgba(255, 255, 255, 0.25);
-
-  --text-primary: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.8);
-  --text-muted: rgba(255, 255, 255, 0.55);
-
-  --accent: #ffffff;
-  --accent-hover: rgba(255, 255, 255, 0.85);
-  --accent-glow: rgba(255, 255, 255, 0.15);
-  --accent-subtle: rgba(255, 255, 255, 0.08);
-
-  --warning: #ffd060;
-  --warning-bg: rgba(255, 208, 96, 0.15);
-  --danger: #ff6080;
-  --danger-bg: rgba(255, 96, 128, 0.15);
-  --success: #80ffd0;
-  --success-bg: rgba(128, 255, 208, 0.15);
-
-  --border: rgba(255, 255, 255, 0.15);
-  --border-hover: rgba(255, 255, 255, 0.3);
-
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.12);
-  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.15);
-  --shadow-glow: 0 0 30px rgba(255, 255, 255, 0.1);
-}
-
-/* ===== THEME TOGGLE ===== */
-.theme-toggle {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  font-size: 1.1rem;
-  transition: all var(--transition);
-  padding: 0;
-  line-height: 1;
-}
-
-.theme-toggle:hover {
-  background: var(--bg-input-focus);
-  border-color: var(--border-hover);
-  transform: scale(1.1);
-}
-
 *,
 *::before,
 *::after {
@@ -559,35 +497,10 @@ body {
   color: var(--accent);
 }
 
-[data-theme="light"] .sidebar {
-  background: rgba(255, 255, 255, 0.14);
-  border-right-color: rgba(255, 255, 255, 0.28);
-}
 
-[data-theme="light"] .sidebar-link {
-  color: rgba(255, 255, 255, 0.88);
-}
 
-[data-theme="light"] .sidebar-link:hover {
-  border-left-color: #22c55e;
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-}
 
-[data-theme="light"] .sidebar-link.active {
-  border-left-color: #22c55e;
-  background: linear-gradient(
-    90deg,
-    rgba(34, 197, 94, 0.22),
-    rgba(255, 255, 255, 0.1)
-  );
-  color: #ffffff;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-}
 
-[data-theme="light"] .sidebar-bottom {
-  border-top-color: rgba(255, 255, 255, 0.22);
-}
 
 [id^="sidebarProfile"] {
   display: none;
@@ -622,14 +535,6 @@ body {
 .sidebar-user strong {
   color: var(--text-primary);
   font-weight: 600;
-}
-
-.sidebar-theme {
-  width: 100%;
-  margin-top: 4px;
-  border-radius: var(--radius-sm);
-  padding: 8px;
-  font-size: 1.1rem;
 }
 
 /* ===== HAMBURGER (mobile only) ===== */
@@ -937,45 +842,12 @@ body {
   pointer-events: none;
 }
 
-[data-theme="light"] .subject-picker-pane {
-  background: rgba(255, 255, 255, 0.24);
-  border-color: rgba(255, 255, 255, 0.42);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    0 14px 28px rgba(12, 22, 42, 0.12);
-}
 
-[data-theme="light"] .subject-picker-btn {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(15, 23, 42, 0.16);
-  color: #102038;
-  backdrop-filter: blur(10px);
-}
 
-[data-theme="light"] .subject-picker-btn:hover {
-  border-color: rgba(15, 23, 42, 0.3);
-  box-shadow: 0 8px 18px rgba(12, 22, 42, 0.14);
-}
 
-[data-theme="light"] .subject-picker-btn.active {
-  box-shadow:
-    0 0 0 2px rgba(255, 255, 255, 0.98),
-    0 0 0 4px rgba(14, 22, 36, 0.15),
-    0 10px 22px rgba(12, 22, 42, 0.16);
-}
 
-[data-theme="light"] .subject-picker-name {
-  color: #102038;
-}
 
-[data-theme="light"] .subject-picker-badge {
-  background: rgba(255, 255, 255, 0.78);
-  border-color: rgba(15, 23, 42, 0.2);
-}
 
-[data-theme="light"] .subject-picker-btn.tone-none {
-  --subject-tone: rgba(15, 23, 42, 0.35);
-}
 
 .subject-deck-status {
   font-size: 0.84rem;
@@ -1827,23 +1699,9 @@ body {
   background-clip: padding-box;
 }
 
-[data-theme="light"] .holiday-list {
-  scrollbar-color: rgba(15, 23, 42, 0.3) rgba(255, 255, 255, 0.32);
-}
 
-[data-theme="light"] .holiday-list::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.32);
-}
 
-[data-theme="light"] .holiday-list::-webkit-scrollbar-thumb {
-  background: rgba(15, 23, 42, 0.28);
-  background-clip: padding-box;
-}
 
-[data-theme="light"] .holiday-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 23, 42, 0.4);
-  background-clip: padding-box;
-}
 
 .holiday-item {
   display: flex;
@@ -2127,14 +1985,7 @@ body {
 }
 
 /* Light mode: accent is white so we hard-code teal for the button */
-[data-theme="light"] .action-btn.add {
-  background: #1a8a7a;
-  color: #fff;
-}
 
-[data-theme="light"] .action-btn.add:hover {
-  background: #167a6c;
-}
 
 .action-btn.add:hover {
   background: var(--accent-hover);
@@ -2148,11 +1999,6 @@ body {
   border: 1px solid #ff4060;
 }
 
-[data-theme="light"] .action-btn.delete {
-  background: rgba(255, 96, 128, 0.15);
-  color: #ff6080;
-  border: 1px solid rgba(255, 96, 128, 0.6);
-}
 
 .action-btn.delete:hover {
   background: #f04060;
@@ -2703,15 +2549,6 @@ body {
   );
 }
 
-[data-theme="light"] .landing-page {
-  background: linear-gradient(
-    135deg,
-    #1e6b9a 0%,
-    #1a8a7a 40%,
-    #30b8a0 70%,
-    #45c9a8 100%
-  );
-}
 
 [data-theme="dark"] .feature-card,
 :root .feature-card {
@@ -2735,10 +2572,6 @@ body {
   color: #0f1117;
 }
 
-[data-theme="light"] .landing-cta {
-  background: #fff;
-  color: #1a6b8a;
-}
 
 /* Landing Nav */
 .landing-nav {
@@ -2808,40 +2641,6 @@ body {
 .landing-btn.google-login:hover {
   background: rgba(255, 255, 255, 0.14);
   border-color: #ffffff;
-}
-
-.landing-theme-toggle {
-  border-color: rgba(255, 255, 255, 0.55);
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.landing-theme-toggle:hover {
-  border-color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.18);
-}
-
-[data-theme="light"] .landing-btn.google-login {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 8px 22px rgba(8, 34, 48, 0.12);
-}
-
-[data-theme="light"] .landing-btn.google-login:hover {
-  background: rgba(255, 255, 255, 0.24);
-  border-color: #ffffff;
-  box-shadow: 0 10px 26px rgba(8, 34, 48, 0.16);
-}
-
-[data-theme="light"] .landing-theme-toggle {
-  border-color: rgba(255, 255, 255, 0.86);
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-}
-
-[data-theme="light"] .landing-theme-toggle:hover {
-  border-color: #ffffff;
-  background: rgba(255, 255, 255, 0.28);
 }
 
 .landing-btn.google-login .google-icon {
@@ -3084,3 +2883,4 @@ body {
     font-size: 23px;
   }
 }
+
