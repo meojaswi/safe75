@@ -227,6 +227,26 @@ body {
   background-clip: text;
 }
 
+.brand-split {
+  font-family: "Syne", sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  text-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.brand-safe {
+  color: #ffffff;
+}
+
+.brand-75 {
+  color: #22c55e;
+}
+
+.auth-card .logo h1.brand-split {
+  background: none;
+  -webkit-text-fill-color: initial;
+}
+
 .auth-card .logo p {
   color: var(--text-secondary);
   font-size: 0.9rem;
@@ -494,6 +514,13 @@ body {
   display: block;
   margin-bottom: 32px;
   padding: 0 8px;
+}
+
+.sidebar-brand.brand-split {
+  font-size: 24px;
+  background: none;
+  -webkit-text-fill-color: initial;
+  color: #ffffff;
 }
 
 .sidebar-nav {
