@@ -56,7 +56,8 @@ function buildEmptySubjectStatsMap(subjects) {
 exports.markAttendance = async (req, res) => {
   try {
     const { subjectId, status, date } = req.body;
-    const attendanceDate = date || getTodayStr();
+    const todayStr = getTodayStr();
+    const attendanceDate = date || todayStr;
 
     if (!subjectId || !status) {
       return res
@@ -70,13 +71,38 @@ exports.markAttendance = async (req, res) => {
         .json({ message: "Date must be in YYYY-MM-DD format" });
     }
 
-    const subject = await Subject.findOne({
-      _id: subjectId,
-      userId: req.userId,
-    });
+    if (attendanceDate > todayStr) {
+      return res
+        .status(400)
+        .json({ message: "Cannot mark attendance for future dates" });
+    }
+
+    const [subject, user] = await Promise.all([
+      Subject.findOne({
+        _id: subjectId,
+        userId: req.userId,
+      }),
+      User.findById(req.userId).select("semesterStart"),
+    ]);
 
     if (!subject) {
       return res.status(404).json({ message: "Subject not found" });
+    }
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (date && !user.semesterStart) {
+      return res.status(400).json({
+        message: "Set semester start date before marking past attendance",
+      });
+    }
+
+    if (user.semesterStart && attendanceDate < user.semesterStart) {
+      return res.status(400).json({
+        message: "Cannot mark attendance before semester start date",
+      });
     }
 
     const existing = await Attendance.findOne({

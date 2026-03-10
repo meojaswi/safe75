@@ -14,6 +14,7 @@ let allSubjects = [];
 let holidays = [];
 let attendanceByDate = {};
 let draftStatusBySubject = {};
+let semesterStart = null;
 
 const DAY_NAMES = [
   "Sunday",
@@ -28,16 +29,34 @@ const DAY_NAMES = [
 // ===== INITIALIZATION =====
 async function initializePage() {
   try {
-    // Load subjects and holidays
-    const [subjectsRes, holidaysRes] = await Promise.all([
+    // Load subjects, holidays, and semester settings
+    const [subjectsRes, holidaysRes, settingsRes] = await Promise.all([
       api.get("/api/subjects"),
       api.get("/api/holidays"),
+      api.get("/api/settings/semester"),
     ]);
 
     allSubjects = subjectsRes;
     holidays = holidaysRes || [];
+    semesterStart = settingsRes.semesterStart;
+
+    // Initialize currentDate to today or semester start (whichever is later)
+    const today = new Date();
+    if (semesterStart) {
+      const semesterStartDate = new Date(semesterStart + "T00:00:00");
+      if (today < semesterStartDate) {
+        currentDate = new Date(semesterStartDate);
+      }
+    } else {
+      const container = document.getElementById("subjectsContainer");
+      if (container) {
+        container.innerHTML =
+          '<p class="placeholder">Set semester start date in Semester Timeline before marking past attendance.</p>';
+      }
+    }
 
     renderCalendar();
+    updateMonthNavigationButtons();
   } catch (error) {
     showToast("Error loading data: " + error.message, "error");
   }
@@ -92,20 +111,37 @@ function renderCalendar() {
 
   // Date cells
   const today = new Date();
+  const todayStr = formatDateStr(today);
+  const semesterStartStr = semesterStart || "";
+
   for (let day = 1; day <= daysInMonth; day++) {
     const dateObj = new Date(year, month, day);
     const dateStr = formatDateStr(dateObj);
-    const isToday = dateStr === formatDateStr(today);
+    const isToday = dateStr === todayStr;
     const isSelected = selectedDate && dateStr === selectedDate;
+
+    // Check if date is within allowed range (semesterStart to today)
+    const isBeforeSemesterStart =
+      !semesterStartStr || dateStr < semesterStartStr;
+    const isAfterToday = dateStr > todayStr;
+    const isAllowed = !isBeforeSemesterStart && !isAfterToday;
 
     const dayCell = document.createElement("div");
     dayCell.className = "calendar-day";
     if (isToday) dayCell.classList.add("today");
     if (isSelected) dayCell.classList.add("selected");
     if (holidays.includes(dateStr)) dayCell.classList.add("holiday");
+    if (!isAllowed) dayCell.classList.add("disabled");
 
     dayCell.textContent = day;
-    dayCell.onclick = () => selectDate(dateStr);
+
+    if (isAllowed) {
+      dayCell.onclick = () => selectDate(dateStr);
+      dayCell.style.cursor = "pointer";
+    } else {
+      dayCell.style.cursor = "not-allowed";
+      dayCell.style.opacity = "0.5";
+    }
 
     calendar.appendChild(dayCell);
   }
@@ -115,18 +151,122 @@ function formatDateStr(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
+function getDateValidationError(dateStr) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+    return "Invalid date selected";
+  }
+
+  if (!semesterStart) {
+    return "Set semester start date in Semester Timeline first";
+  }
+
+  const todayStr = formatDateStr(new Date());
+
+  if (dateStr < semesterStart) {
+    return "Cannot select date before semester start";
+  }
+
+  if (dateStr > todayStr) {
+    return "Cannot select future dates";
+  }
+
+  return null;
+}
+
+function canNavigateToPreviousMonth() {
+  if (!semesterStart) return false;
+
+  const semesterStartDate = new Date(semesterStart + "T00:00:00");
+  const firstOfCurrentMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1,
+  );
+  const lastOfPreviousMonth = new Date(
+    firstOfCurrentMonth.getFullYear(),
+    firstOfCurrentMonth.getMonth(),
+    0,
+  );
+
+  // Can go to previous month only if it still includes allowed dates.
+  return lastOfPreviousMonth >= semesterStartDate;
+}
+
+function canNavigateToNextMonth() {
+  if (!semesterStart) return false;
+
+  const today = new Date();
+  const firstOfCurrentMonth = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    1,
+  );
+  const firstOfNextMonth = new Date(firstOfCurrentMonth);
+  firstOfNextMonth.setMonth(firstOfNextMonth.getMonth() + 1);
+
+  // Can only go to next month if it includes any date up to and including today
+  return firstOfNextMonth <= today;
+}
+
+function updateMonthNavigationButtons() {
+  const prevBtn = document.getElementById("prevMonthPast");
+  const nextBtn = document.getElementById("nextMonthPast");
+
+  if (prevBtn) {
+    const canGoPrev = canNavigateToPreviousMonth();
+    prevBtn.disabled = !canGoPrev;
+    prevBtn.style.opacity = canGoPrev ? "1" : "0.5";
+    prevBtn.style.cursor = canGoPrev ? "pointer" : "not-allowed";
+  }
+
+  if (nextBtn) {
+    const canGoNext = canNavigateToNextMonth();
+    nextBtn.disabled = !canGoNext;
+    nextBtn.style.opacity = canGoNext ? "1" : "0.5";
+    nextBtn.style.cursor = canGoNext ? "pointer" : "not-allowed";
+  }
+}
+
 function previousMonth() {
+  if (!canNavigateToPreviousMonth()) {
+    showToast("Cannot navigate before semester start", "error");
+    return;
+  }
   currentDate.setMonth(currentDate.getMonth() - 1);
   renderCalendar();
+  updateMonthNavigationButtons();
 }
 
 function nextMonth() {
+  if (!canNavigateToNextMonth()) {
+    showToast("Cannot navigate beyond today", "error");
+    return;
+  }
   currentDate.setMonth(currentDate.getMonth() + 1);
   renderCalendar();
+  updateMonthNavigationButtons();
+}
+
+function handlePrevMonthClick(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  previousMonth();
+}
+
+function handleNextMonthClick(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  nextMonth();
 }
 
 // ===== DATE SELECTION =====
 async function selectDate(dateStr) {
+  const validationError = getDateValidationError(dateStr);
+  if (validationError) {
+    showToast(validationError, "error");
+    return;
+  }
+
   selectedDate = dateStr;
   const dateObj = new Date(dateStr + "T00:00:00");
   const dayName = DAY_NAMES[dateObj.getDay()];
@@ -247,6 +387,12 @@ function updateMarkedStatus(subjectId, status) {
 // ===== MARK ATTENDANCE =====
 async function markPastAttendance(subjectId, dateStr) {
   try {
+    const validationError = getDateValidationError(dateStr);
+    if (validationError) {
+      showToast(validationError, "error");
+      return;
+    }
+
     const status = draftStatusBySubject[subjectId];
 
     if (!status) {
@@ -283,10 +429,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const nextBtn = document.getElementById("nextMonthPast");
 
   if (prevBtn) {
-    prevBtn.addEventListener("click", previousMonth);
+    prevBtn.addEventListener("click", handlePrevMonthClick);
   }
   if (nextBtn) {
-    nextBtn.addEventListener("click", nextMonth);
+    nextBtn.addEventListener("click", handleNextMonthClick);
   }
 
   initializePage();
