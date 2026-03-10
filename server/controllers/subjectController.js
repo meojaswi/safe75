@@ -34,14 +34,24 @@ exports.addSubject = async (req, res) => {
   try {
     const { name, type, days } = req.body;
 
-    if (!name) {
+    const trimmedName = (name || "").trim();
+    const normalizedType = (type || "").trim().toLowerCase();
+    const normalizedDays = normalizeDays(days);
+
+    if (!trimmedName) {
       return res.status(400).json({ message: "Subject name is required" });
     }
 
+    if (!ALLOWED_SUBJECT_TYPES.includes(normalizedType)) {
+      return res
+        .status(400)
+        .json({ message: "Type must be either theory or lab" });
+    }
+
     const subject = await Subject.create({
-      name,
-      type,
-      days,
+      name: trimmedName,
+      type: normalizedType,
+      days: normalizedDays,
       userId: req.userId,
     });
 

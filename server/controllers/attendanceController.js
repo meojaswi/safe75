@@ -64,6 +64,12 @@ exports.markAttendance = async (req, res) => {
         .json({ message: "Subject ID and status are required" });
     }
 
+    if (date && !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res
+        .status(400)
+        .json({ message: "Date must be in YYYY-MM-DD format" });
+    }
+
     const subject = await Subject.findOne({
       _id: subjectId,
       userId: req.userId,

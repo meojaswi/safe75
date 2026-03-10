@@ -25,6 +25,12 @@ exports.addHoliday = async (req, res) => {
       return res.status(400).json({ message: "Date is required" });
     }
 
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res
+        .status(400)
+        .json({ message: "Date must be in YYYY-MM-DD format" });
+    }
+
     const existing = await Holiday.findOne({ date, userId: req.userId });
     if (existing) {
       return res.status(400).json({ message: "Date is already a holiday" });
@@ -45,6 +51,12 @@ exports.removeHoliday = async (req, res) => {
   try {
     const { date } = req.params;
 
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res
+        .status(400)
+        .json({ message: "Date must be in YYYY-MM-DD format" });
+    }
+
     await Holiday.deleteOne({ date, userId: req.userId });
 
     res.json({ message: "Holiday removed" });
@@ -64,7 +76,17 @@ exports.addMultipleHolidays = async (req, res) => {
       return res.status(400).json({ message: "Dates array is required" });
     }
 
-    const ops = dates.map((date) => ({
+    const validDates = dates.filter(
+      (d) => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d),
+    );
+
+    if (validDates.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "At least one valid date in YYYY-MM-DD format is required" });
+    }
+
+    const ops = validDates.map((date) => ({
       updateOne: {
         filter: { date, userId: req.userId },
         update: { date, userId: req.userId },
@@ -72,11 +94,9 @@ exports.addMultipleHolidays = async (req, res) => {
       },
     }));
 
-    if (ops.length > 0) {
-      await Holiday.bulkWrite(ops);
-    }
+    await Holiday.bulkWrite(ops);
 
-    res.json({ message: `${dates.length} holidays updated` });
+    res.json({ message: `${validDates.length} holidays updated` });
   } catch (error) {
     console.error("Add multiple holidays error:", error);
     res
