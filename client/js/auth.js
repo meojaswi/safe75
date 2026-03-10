@@ -1,5 +1,5 @@
 function isLoggedIn() {
-  return !!localStorage.getItem("token");
+  return localStorage.getItem("isAuthenticated") === "1";
 }
 
 function getCurrentPageName() {
@@ -30,10 +30,15 @@ function getUserName() {
 }
 
 function logout() {
-  localStorage.removeItem("token");
-  localStorage.removeItem("userName");
-  // replace() removes this page from history so Back can't return here
-  window.location.replace("login.html");
+  api
+    .post("/api/auth/logout")
+    .catch(() => {})
+    .finally(() => {
+      localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("userName");
+      // replace() removes this page from history so Back can't return here
+      window.location.replace("login.html");
+    });
 }
 
 function requireAuth() {

@@ -18,7 +18,7 @@ async function handleLogin(e) {
   try {
     const data = await api.post("/api/auth/login", { email, password });
 
-    localStorage.setItem("token", data.token);
+    localStorage.setItem("isAuthenticated", "1");
     localStorage.setItem("userName", data.name);
 
     window.location.replace("dashboard.html");

@@ -20,13 +20,18 @@ function toggleTheme() {
   }
 }
 
-function initThemeButton() {
-  const btn = document.querySelector(".theme-toggle");
-  if (btn) {
-    const current = document.documentElement.getAttribute("data-theme");
-    btn.textContent = current === "light" ? "🌙" : "☀️";
-    btn.title = current === "light" ? "Switch to dark mode" : "Switch to light mode";
-  }
+function initThemeButtons() {
+  const buttons = document.querySelectorAll(".theme-toggle");
+  const current = document.documentElement.getAttribute("data-theme");
+  const text = current === "light" ? "🌙" : "☀️";
+  const title =
+    current === "light" ? "Switch to dark mode" : "Switch to light mode";
+
+  buttons.forEach((btn) => {
+    btn.textContent = text;
+    btn.title = title;
+    btn.addEventListener("click", toggleTheme);
+  });
 }
 
-document.addEventListener("DOMContentLoaded", initThemeButton);
+document.addEventListener("DOMContentLoaded", initThemeButtons);

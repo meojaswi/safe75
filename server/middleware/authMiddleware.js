@@ -1,7 +1,26 @@
 const jwt = require("jsonwebtoken");
 
+function getCookie(req, name) {
+  const cookieHeader = req.headers.cookie;
+  if (!cookieHeader) {
+    return null;
+  }
+
+  const cookies = cookieHeader.split(";").map((c) => c.trim());
+  for (const cookie of cookies) {
+    const [key, ...rest] = cookie.split("=");
+    if (key === name) {
+      return decodeURIComponent(rest.join("="));
+    }
+  }
+
+  return null;
+}
+
 const authMiddleware = (req, res, next) => {
-  const token = req.header("Authorization")?.replace("Bearer ", "");
+  const bearerToken = req.header("Authorization")?.replace("Bearer ", "");
+  const cookieToken = getCookie(req, "auth_token");
+  const token = cookieToken || bearerToken;
 
   if (!token) {
     return res.status(401).json({ message: "No token, access denied" });
@@ -12,7 +31,7 @@ const authMiddleware = (req, res, next) => {
     req.userId = decoded.userId;
     next();
   } catch (error) {
-    res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 };
 

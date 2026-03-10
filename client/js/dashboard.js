@@ -108,20 +108,20 @@ function renderTodaySection(subjects, todayDay) {
         actionHtml = `
           <div class="today-marked">
             <span class="today-status ${s}">${labels[s]}</span>
-            <button class="btn-edit" onclick="toggleEdit('${item.subjectId}')" title="Change status">✏️</button>
+            <button class="btn-edit" data-edit-subject-id="${item.subjectId}" title="Change status">✏️</button>
           </div>
           <div class="mark-btns edit-btns" id="edit-${item.subjectId}" style="display:none;">
-            <button class="btn btn-sm btn-present" onclick="markAttendance('${item.subjectId}', 'present')">✓ Present</button>
-            <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">✕ Absent</button>
-            <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">⊘ No Class</button>
+            <button class="btn btn-sm btn-present" data-mark-subject-id="${item.subjectId}" data-mark-status="present">✓ Present</button>
+            <button class="btn btn-sm btn-absent" data-mark-subject-id="${item.subjectId}" data-mark-status="absent">✕ Absent</button>
+            <button class="btn btn-sm btn-noclass" data-mark-subject-id="${item.subjectId}" data-mark-status="no_class">⊘ No Class</button>
           </div>
         `;
       } else {
         actionHtml = `
           <div class="mark-btns">
-            <button class="btn btn-sm btn-present" onclick="markAttendance('${item.subjectId}', 'present')">✓ Present</button>
-            <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">✕ Absent</button>
-            <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">⊘ No Class</button>
+            <button class="btn btn-sm btn-present" data-mark-subject-id="${item.subjectId}" data-mark-status="present">✓ Present</button>
+            <button class="btn btn-sm btn-absent" data-mark-subject-id="${item.subjectId}" data-mark-status="absent">✕ Absent</button>
+            <button class="btn btn-sm btn-noclass" data-mark-subject-id="${item.subjectId}" data-mark-status="no_class">⊘ No Class</button>
           </div>
         `;
       }
@@ -132,7 +132,7 @@ function renderTodaySection(subjects, todayDay) {
           <h4>${escapeHtml(item.subject)}</h4>
           <div class="today-card-tools">
             <span class="subject-badge ${item.type === "lab" ? "badge-lab" : "badge-theory"}">${item.type === "lab" ? "Lab" : "Theory"}</span>
-            <button class="btn btn-sm btn-ghost btn-edit-subject" onclick="openEditSubjectDialog('${item.subjectId}')">Edit</button>
+            <button class="btn btn-sm btn-ghost btn-edit-subject" data-open-edit-subject-id="${item.subjectId}">Edit</button>
           </div>
         </div>
         ${actionHtml}
@@ -200,17 +200,17 @@ function createSubjectCard(item) {
 
       <div class="subject-actions">
         <div class="mark-btns">
-          <button class="btn btn-sm btn-present" onclick="markAttendance('${item.subjectId}', 'present')">
+          <button class="btn btn-sm btn-present" data-mark-subject-id="${item.subjectId}" data-mark-status="present">
             ✓ Present
           </button>
-          <button class="btn btn-sm btn-absent" onclick="markAttendance('${item.subjectId}', 'absent')">
+          <button class="btn btn-sm btn-absent" data-mark-subject-id="${item.subjectId}" data-mark-status="absent">
             ✕ Absent
           </button>
-          <button class="btn btn-sm btn-noclass" onclick="markAttendance('${item.subjectId}', 'no_class')">
+          <button class="btn btn-sm btn-noclass" data-mark-subject-id="${item.subjectId}" data-mark-status="no_class">
             ⊘ No Class
           </button>
         </div>
-        <button class="btn btn-sm btn-danger-ghost" onclick="confirmDelete('${item.subjectId}', '${escapeHtml(item.subject)}')" title="Delete subject">
+        <button class="btn btn-sm btn-danger-ghost" data-delete-subject-id="${item.subjectId}" data-delete-subject-name="${escapeHtml(item.subject)}" title="Delete subject">
           🗑
         </button>
       </div>
@@ -380,7 +380,7 @@ async function loadDashboard() {
         <div class="empty-icon">⚠</div>
         <h3>Failed to load dashboard</h3>
         <p>${error.message}</p>
-        <button onclick="loadDashboard()" class="btn btn-primary">Retry</button>
+        <button class="btn btn-primary" data-retry-dashboard>Retry</button>
       </div>
     `;
   }
@@ -446,8 +446,8 @@ function openEditSubjectDialog(subjectId) {
       </div>
 
       <div class="dialog-actions">
-        <button class="btn btn-sm btn-ghost" onclick="closeEditSubjectDialog()">Cancel</button>
-        <button class="btn btn-sm btn-primary" onclick="saveSubjectEdit('${subject.subjectId}', this)">Save</button>
+        <button class="btn btn-sm btn-ghost" data-dialog-cancel>Edit</button>
+        <button class="btn btn-sm btn-primary" data-dialog-save="${subject.subjectId}">Save</button>
       </div>
     </div>
   `;
@@ -535,8 +535,8 @@ function confirmDelete(subjectId, subjectName) {
       <h3>Delete Subject?</h3>
       <p>Are you sure you want to delete <strong>${subjectName}</strong>? All attendance records for this subject will also be removed.</p>
       <div class="dialog-actions">
-        <button class="btn btn-sm btn-ghost" onclick="this.closest('.dialog-overlay').remove()">Cancel</button>
-        <button class="btn btn-sm btn-absent" onclick="deleteSubject('${subjectId}', this)">Delete</button>
+        <button class="btn btn-sm btn-ghost" data-dialog-cancel>Cancel</button>
+        <button class="btn btn-sm btn-absent" data-dialog-delete="${subjectId}">Delete</button>
       </div>
     </div>
   `;
@@ -589,7 +589,7 @@ function openDeletePanel() {
           (s) => `
         <div class="delete-item" id="del-${s.subjectId}">
           <span class="delete-item-name">${s.subject}</span>
-          <button class="delete-item-btn" onclick="confirmDelete('${s.subjectId}', '${s.subject.replace(/'/g, "\\'")}')">Delete</button>
+          <button class="delete-item-btn" data-delete-subject-id="${s.subjectId}" data-delete-subject-name="${s.subject.replace(/'/g, "\\'")}">Delete</button>
         </div>
       `,
         )
@@ -600,5 +600,58 @@ function openDeletePanel() {
   const setupBanner = document.getElementById("setupBanner");
   setupBanner.parentNode.insertBefore(panel, setupBanner);
 }
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const markSubjectId = target.getAttribute("data-mark-subject-id");
+  const markStatus = target.getAttribute("data-mark-status");
+  if (markSubjectId && markStatus) {
+    markAttendance(markSubjectId, markStatus);
+    return;
+  }
+
+  const editSubjectId = target.getAttribute("data-edit-subject-id");
+  if (editSubjectId) {
+    toggleEdit(editSubjectId);
+    return;
+  }
+
+  const openEditId = target.getAttribute("data-open-edit-subject-id");
+  if (openEditId) {
+    openEditSubjectDialog(openEditId);
+    return;
+  }
+
+  const deleteId = target.getAttribute("data-delete-subject-id");
+  if (deleteId) {
+    const name = target.getAttribute("data-delete-subject-name") || "this subject";
+    confirmDelete(deleteId, name);
+    return;
+  }
+
+  if (target.hasAttribute("data-dialog-cancel")) {
+    const overlay = target.closest(".dialog-overlay");
+    if (overlay) overlay.remove();
+    return;
+  }
+
+  const saveId = target.getAttribute("data-dialog-save");
+  if (saveId) {
+    saveSubjectEdit(saveId, target);
+    return;
+  }
+
+  const dialogDeleteId = target.getAttribute("data-dialog-delete");
+  if (dialogDeleteId) {
+    deleteSubject(dialogDeleteId, target);
+    return;
+  }
+
+  if (target.hasAttribute("data-retry-dashboard")) {
+    loadDashboard();
+  }
+});
 
 loadDashboard();

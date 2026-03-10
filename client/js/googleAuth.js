@@ -64,7 +64,7 @@ async function handleGoogleCredentialResponse(response) {
       idToken: response.credential,
     });
 
-    localStorage.setItem("token", data.token);
+    localStorage.setItem("isAuthenticated", "1");
     localStorage.setItem("userName", data.name);
     window.location.replace("dashboard.html");
   } catch (error) {

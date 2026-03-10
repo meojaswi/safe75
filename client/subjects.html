@@ -34,29 +34,18 @@
           <div class="sidebar-user">
             Signed in as<br /><strong id="userName"></strong>
           </div>
-          <a
-            href="#"
-            onclick="
-              logout();
-              return false;
-            "
-            class="sidebar-link"
-          >
+          <a href="#" id="sidebarLogoutSubjects" class="sidebar-link">
             <span class="link-icon">🚪</span> Logout
           </a>
-          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">
+          <button class="theme-toggle sidebar-theme" id="sidebarThemeToggleSubjects">
             ☀️
           </button>
         </div>
       </aside>
-      <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-        onclick="toggleSidebar()"
-      ></div>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
       <div class="main-content">
-        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <button class="hamburger" id="hamburgerSubjects">☰</button>
 
         <div class="main-inner">
           <div class="page-header">
@@ -66,7 +55,7 @@
 
           <div class="action-btns-row">
             <a href="add-subject.html" class="action-btn add">＋ Add Subject</a>
-            <button class="action-btn delete" onclick="openDeletePanel()">
+            <button class="action-btn delete" id="openDeletePanelBtnSubjects">
               🗑 Delete Subject
             </button>
           </div>

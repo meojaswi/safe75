@@ -108,7 +108,8 @@ function createSubjectCard(item) {
         <div class="mark-btns"></div>
         <button
           class="btn btn-sm btn-danger-ghost"
-          onclick="confirmDelete('${item.subjectId}', '${subjectNameForJs}')"
+          data-delete-subject-id="${item.subjectId}"
+          data-delete-subject-name="${subjectNameForJs}"
           title="Delete subject"
         >
           🗑 Delete
@@ -144,7 +145,7 @@ async function loadSubjects() {
         <div class="empty-icon">⚠</div>
         <h3>Failed to load subjects</h3>
         <p>${error.message}</p>
-        <button onclick="loadSubjects()" class="btn btn-primary">Retry</button>
+        <button class="btn btn-primary" id="retryLoadSubjects">Retry</button>
       </div>
     `;
   }
@@ -172,7 +173,8 @@ function openDeletePanel() {
           <span class="delete-item-name">${escapeHtml(s.subject)}</span>
           <button
             class="delete-item-btn"
-            onclick="confirmDelete('${s.subjectId}', '${s.subject.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}')"
+            data-delete-subject-id="${s.subjectId}"
+            data-delete-subject-name="${s.subject.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}"
           >
             Delete
           </button>
@@ -210,8 +212,8 @@ function confirmDelete(subjectId, subjectName) {
       <h3>Delete Subject?</h3>
       <p>Are you sure you want to delete <strong>${subjectName}</strong>? All attendance records will also be removed.</p>
       <div class="dialog-actions">
-        <button class="btn btn-sm btn-ghost" onclick="this.closest('.dialog-overlay').remove()">Cancel</button>
-        <button class="btn btn-sm btn-absent" onclick="deleteSubject('${subjectId}', this)">Delete</button>
+        <button class="btn btn-sm btn-ghost" data-dialog-cancel>Cancel</button>
+        <button class="btn btn-sm btn-absent" data-dialog-delete="${subjectId}">Delete</button>
       </div>
     </div>
   `;
@@ -238,3 +240,32 @@ async function deleteSubject(subjectId, btn) {
 }
 
 loadSubjects();
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const deleteId = target.getAttribute("data-delete-subject-id");
+  if (deleteId) {
+    const name =
+      target.getAttribute("data-delete-subject-name") || "this subject";
+    confirmDelete(deleteId, name);
+    return;
+  }
+
+  if (target.hasAttribute("data-dialog-cancel")) {
+    const overlay = target.closest(".dialog-overlay");
+    if (overlay) overlay.remove();
+    return;
+  }
+
+  const dialogDeleteId = target.getAttribute("data-dialog-delete");
+  if (dialogDeleteId) {
+    deleteSubject(dialogDeleteId, target);
+    return;
+  }
+
+  if (target.id === "retryLoadSubjects") {
+    loadSubjects();
+  }
+});

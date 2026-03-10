@@ -21,4 +21,24 @@ function toggleSidebar() {
   syncHamburgerState();
 }
 
-document.addEventListener("DOMContentLoaded", syncHamburgerState);
+document.addEventListener("DOMContentLoaded", () => {
+  syncHamburgerState();
+
+  document.querySelectorAll(".hamburger").forEach((btn) => {
+    btn.addEventListener("click", toggleSidebar);
+  });
+
+  const overlay = document.getElementById("sidebarOverlay");
+  if (overlay) {
+    overlay.addEventListener("click", toggleSidebar);
+  }
+
+  document.querySelectorAll(".sidebar-link[href='#']").forEach((link) => {
+    if (link.id && link.id.startsWith("sidebarLogout")) {
+      link.addEventListener("click", (e) => {
+        e.preventDefault();
+        logout();
+      });
+    }
+  });
+});

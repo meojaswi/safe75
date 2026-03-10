@@ -12,7 +12,40 @@ const settingsRoutes = require("./routes/settingsRoutes");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        "http://localhost:3000",
+        (process.env.CLIENT_BASE_URL || "").trim() || undefined,
+      ].filter(Boolean);
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  }),
+);
+
+app.use((req, res, next) => {
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' https://accounts.google.com",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "connect-src 'self'",
+    "font-src 'self' data:",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; ");
+
+  res.setHeader("Content-Security-Policy", csp);
+  next();
+});
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client")));
 

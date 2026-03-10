@@ -17,6 +17,16 @@ function createToken(userId) {
   });
 }
 
+function setAuthCookie(res, token) {
+  const isProd = (process.env.NODE_ENV || "").toLowerCase() === "production";
+  res.cookie("auth_token", token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+}
+
 function normalizeEmail(email) {
   return email.trim().toLowerCase();
 }
@@ -128,8 +138,9 @@ exports.signup = async (req, res) => {
     });
 
     const token = createToken(user._id);
+    setAuthCookie(res, token);
 
-    res.json({ message: "Account created", token, name: user.name });
+    res.json({ message: "Account created", name: user.name });
   } catch (error) {
     console.error("Signup error:", error);
     res
@@ -168,8 +179,9 @@ exports.login = async (req, res) => {
     }
 
     const token = createToken(user._id);
+    setAuthCookie(res, token);
 
-    res.json({ token, name: user.name });
+    res.json({ name: user.name });
   } catch (error) {
     console.error("Login error:", error);
     res
@@ -275,6 +287,16 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
+exports.logout = (req, res) => {
+  const isProd = (process.env.NODE_ENV || "").toLowerCase() === "production";
+  res.clearCookie("auth_token", {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: "lax",
+  });
+  return res.json({ message: "Logged out" });
+};
+
 exports.googleAuth = async (req, res) => {
   try {
     if (!process.env.GOOGLE_CLIENT_ID) {
@@ -337,8 +359,9 @@ exports.googleAuth = async (req, res) => {
     }
 
     const token = createToken(user._id);
+    setAuthCookie(res, token);
 
-    res.json({ token, name: user.name });
+    res.json({ name: user.name });
   } catch (error) {
     console.error("Google authentication error:", error);
     res.status(401).json({ message: "Google authentication failed" });

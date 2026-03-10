@@ -35,30 +35,19 @@
           <div class="sidebar-user">
             Signed in as<br /><strong id="userName"></strong>
           </div>
-          <a
-            href="#"
-            onclick="
-              logout();
-              return false;
-            "
-            class="sidebar-link"
-          >
+          <a href="#" id="sidebarLogoutPast" class="sidebar-link">
             <span class="link-icon">🚪</span> Logout
           </a>
-          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">
+          <button class="theme-toggle sidebar-theme" id="sidebarThemeTogglePast">
             ☀️
           </button>
         </div>
       </aside>
-      <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-        onclick="toggleSidebar()"
-      ></div>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
       <!-- Main Content -->
       <main class="main-content">
-        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <button class="hamburger" id="hamburgerPast">☰</button>
 
         <div class="main-inner">
           <div class="page-header">
@@ -72,22 +61,14 @@
               <h3>📅 Select Date</h3>
               <div class="date-selector">
                 <div class="date-picker-header">
-                  <button
-                    class="btn-icon"
-                    onclick="previousMonth()"
-                    title="Previous month"
-                  >
+                  <button class="btn-icon" id="prevMonthPast" title="Previous month">
                     ◀
                   </button>
                   <h4
                     id="currentMonth"
                     style="flex: 1; text-align: center; margin: 0"
                   ></h4>
-                  <button
-                    class="btn-icon"
-                    onclick="nextMonth()"
-                    title="Next month"
-                  >
+                  <button class="btn-icon" id="nextMonthPast" title="Next month">
                     ▶
                   </button>
                 </div>

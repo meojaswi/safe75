@@ -34,29 +34,18 @@
           <div class="sidebar-user">
             Signed in as<br /><strong id="userName"></strong>
           </div>
-          <a
-            href="#"
-            onclick="
-              logout();
-              return false;
-            "
-            class="sidebar-link"
-          >
+          <a href="#" id="sidebarLogoutAddSubject" class="sidebar-link">
             <span class="link-icon">🚪</span> Logout
           </a>
-          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">
+          <button class="theme-toggle sidebar-theme" id="sidebarThemeToggleAddSubject">
             ☀️
           </button>
         </div>
       </aside>
-      <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-        onclick="toggleSidebar()"
-      ></div>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
       <div class="main-content">
-        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <button class="hamburger" id="hamburgerAddSubject">☰</button>
 
         <div class="main-inner">
           <div class="page-header">

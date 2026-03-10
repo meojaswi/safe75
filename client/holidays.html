@@ -34,29 +34,18 @@
           <div class="sidebar-user">
             Signed in as<br /><strong id="userName"></strong>
           </div>
-          <a
-            href="#"
-            onclick="
-              logout();
-              return false;
-            "
-            class="sidebar-link"
-          >
+          <a href="#" id="sidebarLogoutHolidays" class="sidebar-link">
             <span class="link-icon">🚪</span> Logout
           </a>
-          <button class="theme-toggle sidebar-theme" onclick="toggleTheme()">
+          <button class="theme-toggle sidebar-theme" id="sidebarThemeToggleHolidays">
             ☀️
           </button>
         </div>
       </aside>
-      <div
-        class="sidebar-overlay"
-        id="sidebarOverlay"
-        onclick="toggleSidebar()"
-      ></div>
+      <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
       <div class="main-content">
-        <button class="hamburger" onclick="toggleSidebar()">☰</button>
+        <button class="hamburger" id="hamburgerHolidays">☰</button>
 
         <div class="main-inner">
           <div class="page-header">
@@ -70,19 +59,11 @@
           <div class="calendar-wrapper">
             <div class="calendar-card">
               <div class="calendar-nav">
-                <button
-                  class="btn btn-ghost btn-sm"
-                  id="prevMonth"
-                  onclick="changeMonth(-1)"
-                >
+                <button class="btn btn-ghost btn-sm" id="prevMonth">
                   ←
                 </button>
                 <h3 id="calendarTitle"></h3>
-                <button
-                  class="btn btn-ghost btn-sm"
-                  id="nextMonth"
-                  onclick="changeMonth(1)"
-                >
+                <button class="btn btn-ghost btn-sm" id="nextMonth">
                   →
                 </button>
               </div>

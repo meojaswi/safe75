@@ -75,7 +75,7 @@ function renderCalendar() {
     if (isHoliday) classes += " holiday";
     if (isToday) classes += " today";
 
-    html += `<div class="${classes}" onclick="toggleHoliday('${dateStr}')" title="${formatDateReadable(dateStr)}">
+    html += `<div class="${classes}" data-holiday-date="${dateStr}" title="${formatDateReadable(dateStr)}">
       <span class="day-num">${day}</span>
       ${isHoliday ? '<span class="day-badge">🏖</span>' : ""}
     </div>`;
@@ -103,7 +103,7 @@ function renderHolidayList() {
       (date) => `
     <div class="holiday-item">
       <span>🏖 ${formatDateReadable(date)}</span>
-      <button class="btn btn-sm btn-danger-ghost" onclick="toggleHoliday('${date}')" title="Remove">✕</button>
+      <button class="btn btn-sm btn-danger-ghost" data-holiday-date="${date}" title="Remove">✕</button>
     </div>
   `,
     )
@@ -145,3 +145,23 @@ const now = new Date();
 currentYear = now.getFullYear();
 currentMonth = now.getMonth();
 loadHolidays();
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const holidayDate = target.getAttribute("data-holiday-date");
+  if (holidayDate) {
+    toggleHoliday(holidayDate);
+    return;
+  }
+
+  if (target.id === "prevMonth") {
+    changeMonth(-1);
+    return;
+  }
+
+  if (target.id === "nextMonth") {
+    changeMonth(1);
+  }
+});

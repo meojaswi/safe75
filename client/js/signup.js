@@ -30,7 +30,7 @@ async function handleSignup(e) {
       password,
     });
 
-    localStorage.setItem("token", data.token);
+    localStorage.setItem("isAuthenticated", "1");
     localStorage.setItem("userName", data.name);
 
     window.location.replace("dashboard.html");

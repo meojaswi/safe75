@@ -196,7 +196,8 @@ function displaySubjectsForDate(dateStr, dayName) {
                 type="radio"
                 name="attendance-${subjectId}"
                 value="present"
-                onchange="updateMarkedStatus('${subjectId}', 'present')"
+                data-attendance-subject-id="${subjectId}"
+                data-attendance-status="present"
                 ${defaultStatus === "present" ? "checked" : ""}
               />
               <span class="radio-label present">✓ Present</span>
@@ -206,7 +207,8 @@ function displaySubjectsForDate(dateStr, dayName) {
                 type="radio"
                 name="attendance-${subjectId}"
                 value="absent"
-                onchange="updateMarkedStatus('${subjectId}', 'absent')"
+                data-attendance-subject-id="${subjectId}"
+                data-attendance-status="absent"
                 ${defaultStatus === "absent" ? "checked" : ""}
               />
               <span class="radio-label absent">✕ Absent</span>
@@ -216,7 +218,8 @@ function displaySubjectsForDate(dateStr, dayName) {
                 type="radio"
                 name="attendance-${subjectId}"
                 value="no_class"
-                onchange="updateMarkedStatus('${subjectId}', 'no_class')"
+                data-attendance-subject-id="${subjectId}"
+                data-attendance-status="no_class"
                 ${defaultStatus === "no_class" ? "checked" : ""}
               />
               <span class="radio-label noclass">⊘ No Class</span>
@@ -225,7 +228,8 @@ function displaySubjectsForDate(dateStr, dayName) {
 
           <button
             class="btn btn-sm"
-            onclick="markPastAttendance('${subjectId}', '${dateStr}')"
+            data-mark-past-subject-id="${subjectId}"
+            data-mark-past-date="${dateStr}"
             style="width: 100%; margin-top: 12px;"
           >
             Save Attendance
@@ -274,4 +278,22 @@ function escapeHtml(text) {
 }
 
 // Initialize
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const statusSubjectId = target.getAttribute("data-attendance-subject-id");
+  const statusValue = target.getAttribute("data-attendance-status");
+  if (statusSubjectId && statusValue) {
+    updateMarkedStatus(statusSubjectId, statusValue);
+    return;
+  }
+
+  const pastSubjectId = target.getAttribute("data-mark-past-subject-id");
+  const pastDate = target.getAttribute("data-mark-past-date");
+  if (pastSubjectId && pastDate) {
+    markPastAttendance(pastSubjectId, pastDate);
+  }
+});
+
 initializePage();
