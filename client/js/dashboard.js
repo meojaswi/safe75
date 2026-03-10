@@ -4,9 +4,29 @@ if (!requireAuth()) {
 
 // Set user name in sidebar
 const userNameEl = document.getElementById("userName");
+const userName = getUserName();
 if (userNameEl) {
-  userNameEl.textContent = getUserName();
+  userNameEl.textContent = userName;
 }
+
+function getTimeGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+function setDashboardGreeting() {
+  const greetingEl = document.getElementById("dashboardGreeting");
+  if (!greetingEl) return;
+
+  const firstName = (userName || "").trim().split(/\s+/)[0] || "";
+  greetingEl.textContent = firstName
+    ? `${getTimeGreeting()}, ${firstName}`
+    : getTimeGreeting();
+}
+
+setDashboardGreeting();
 
 const CIRCLE_RADIUS = 35;
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
