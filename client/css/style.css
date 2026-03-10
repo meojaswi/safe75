@@ -1,4 +1,3 @@
- 
 :root {
   --bg-primary: #0f1117;
   --bg-secondary: #1a1d27;
@@ -527,6 +526,10 @@ body {
   color: var(--accent);
 }
 
+[id^="sidebarProfile"] {
+  display: none;
+}
+
 .sidebar-link .link-icon {
   font-size: 1.1rem;
   width: 22px;
@@ -619,7 +622,9 @@ body {
 
   .hamburger {
     display: block;
-    transition: left var(--transition), background var(--transition);
+    transition:
+      left var(--transition),
+      background var(--transition);
   }
 
   .sidebar.open ~ .main-content .hamburger {
@@ -1017,7 +1022,6 @@ body {
   font-size: 0.82rem;
   line-height: 1.45;
 }
-
 
 /* ===== LOADING ===== */
 .loading-spinner {
