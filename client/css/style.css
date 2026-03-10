@@ -1325,6 +1325,13 @@ body {
   background: var(--border);
 }
 
+.auth-google-note {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin: 6px 0 12px;
+}
+
 /* Center the Google Sign-In button */
 .google-signin-button {
   display: flex;

@@ -10,7 +10,7 @@ function getCurrentPageName() {
 
 function isAuthEntryPage() {
   const page = getCurrentPageName();
-  return page === "login.html" || page === "signup.html";
+  return page === "login.html";
 }
 
 function isPublicPage() {
@@ -18,7 +18,6 @@ function isPublicPage() {
   return (
     page === "index.html" ||
     page === "login.html" ||
-    page === "signup.html" ||
     page === "forgot-password.html" ||
     page === "reset-password.html" ||
     page === "404.html"

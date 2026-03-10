@@ -116,85 +116,15 @@ exports.googleConfig = async (req, res) => {
 };
 
 exports.signup = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    const trimmedName = (name || "").trim();
-    const normalizedEmail = normalizeEmail(email || "");
-
-    if (!trimmedName || !normalizedEmail || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    if (password.length < 6) {
-      return res
-        .status(400)
-        .json({ message: "Password must be at least 6 characters" });
-    }
-
-    const existingUser = await User.findOne({ email: normalizedEmail });
-    if (existingUser) {
-      return res.status(400).json({ message: "Email already registered" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      name: trimmedName,
-      email: normalizedEmail,
-      password: hashedPassword,
-    });
-
-    const token = createToken(user._id);
-    setAuthCookie(res, token);
-
-    res.json({ message: "Account created", name: user.name });
-  } catch (error) {
-    console.error("Signup error:", error);
-    res
-      .status(500)
-      .json({ message: "Something went wrong on the server. Please try again." });
-  }
+  return res.status(403).json({
+    message: "Email/password signup is disabled. Please continue with Google Sign-In.",
+  });
 };
 
 exports.login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const normalizedEmail = normalizeEmail(email || "");
-
-    if (!normalizedEmail || !password) {
-      return res
-        .status(400)
-        .json({ message: "Email and password are required" });
-    }
-
-    const user = await User.findOne({ email: normalizedEmail });
-
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
-    }
-
-    if (!user.password) {
-      return res.status(400).json({
-        message: "This account uses Google Sign-In. Please use the Google button to log in.",
-      });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid password" });
-    }
-
-    const token = createToken(user._id);
-    setAuthCookie(res, token);
-
-    res.json({ name: user.name });
-  } catch (error) {
-    console.error("Login error:", error);
-    res
-      .status(500)
-      .json({ message: "Something went wrong on the server. Please try again." });
-  }
+  return res.status(403).json({
+    message: "Email/password login is disabled. Please continue with Google Sign-In.",
+  });
 };
 
 exports.forgotPassword = async (req, res) => {

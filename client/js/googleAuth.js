@@ -86,7 +86,7 @@ async function initGoogleAuth(buttonText = "signin_with") {
     if (!config.clientId) {
       renderGoogleFallback(
         buttonContainer,
-        "Google Sign-In is currently unavailable. Please use email and password.",
+        "Google Sign-In is currently unavailable. Please try again later.",
       );
       return;
     }
@@ -114,7 +114,7 @@ async function initGoogleAuth(buttonText = "signin_with") {
   } catch (error) {
     renderGoogleFallback(
       buttonContainer,
-      "Google Sign-In could not be loaded right now. Please refresh or use email and password.",
+      "Google Sign-In could not be loaded right now. Please refresh and try again.",
     );
     showGoogleError(
       error && error.message

@@ -51,6 +51,14 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "../client")));
 
+app.get("/signup", (_req, res) => {
+  res.redirect(302, "/login.html");
+});
+
+app.get("/signup.html", (_req, res) => {
+  res.redirect(302, "/login.html");
+});
+
 app.use("/api/auth", authRoutes);
 app.use("/api/subjects", subjectRoutes);
 app.use("/api/attendance", attendanceRoutes);
