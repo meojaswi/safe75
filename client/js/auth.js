@@ -2,6 +2,29 @@ function isLoggedIn() {
   return !!localStorage.getItem("token");
 }
 
+function getCurrentPageName() {
+  const path = window.location.pathname || "";
+  const fileName = path.split("/").pop();
+  return (fileName || "index.html").toLowerCase();
+}
+
+function isAuthEntryPage() {
+  const page = getCurrentPageName();
+  return page === "login.html" || page === "signup.html";
+}
+
+function isPublicPage() {
+  const page = getCurrentPageName();
+  return (
+    page === "index.html" ||
+    page === "login.html" ||
+    page === "signup.html" ||
+    page === "forgot-password.html" ||
+    page === "reset-password.html" ||
+    page === "404.html"
+  );
+}
+
 function getUserName() {
   return localStorage.getItem("userName") || "Student";
 }
@@ -26,7 +49,12 @@ function requireAuth() {
 
 // Re-check auth whenever browser restores a page from the bfcache (Back/Forward)
 window.addEventListener("pageshow", function (event) {
-  if (event.persisted && !isLoggedIn()) {
+  if (isLoggedIn() && isAuthEntryPage()) {
+    window.location.replace("dashboard.html");
+    return;
+  }
+
+  if (event.persisted && !isLoggedIn() && !isPublicPage()) {
     window.location.replace("login.html");
   }
 });

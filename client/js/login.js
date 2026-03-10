@@ -21,7 +21,7 @@ async function handleLogin(e) {
     localStorage.setItem("token", data.token);
     localStorage.setItem("userName", data.name);
 
-    window.location.href = "dashboard.html";
+    window.location.replace("dashboard.html");
   } catch (error) {
     alert.textContent = error.message;
     alert.classList.add("show");
