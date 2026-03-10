@@ -2,7 +2,11 @@ if (!requireAuth()) {
   // Will redirect to login
 }
 
-document.getElementById("userName").textContent = getUserName();
+// Set user name in sidebar
+const userNameEl = document.getElementById("userName");
+if (userNameEl) {
+  userNameEl.textContent = getUserName();
+}
 
 let currentDate = new Date();
 let selectedDate = null;
@@ -148,7 +152,9 @@ async function selectDate(dateStr) {
 }
 
 async function loadAttendanceForDate(dateStr) {
-  const data = await api.get("/api/attendance/date/" + encodeURIComponent(dateStr));
+  const data = await api.get(
+    "/api/attendance/date/" + encodeURIComponent(dateStr),
+  );
   attendanceByDate = data.statuses || {};
   draftStatusBySubject = { ...attendanceByDate };
 }

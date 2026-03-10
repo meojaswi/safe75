@@ -2,7 +2,11 @@ if (!requireAuth()) {
   // Will redirect to login
 }
 
-document.getElementById("userName").textContent = getUserName();
+// Set user name in sidebar
+const userNameEl = document.getElementById("userName");
+if (userNameEl) {
+  userNameEl.textContent = getUserName();
+}
 
 const CIRCLE_RADIUS = 35;
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
@@ -66,7 +70,11 @@ function renderTodaySection(subjects, todayDay) {
       let actionHtml;
 
       if (s) {
-        const labels = { present: "✓ Present", absent: "✕ Absent", no_class: "⊘ No Class" };
+        const labels = {
+          present: "✓ Present",
+          absent: "✕ Absent",
+          no_class: "⊘ No Class",
+        };
         actionHtml = `
           <div class="today-marked">
             <span class="today-status ${s}">${labels[s]}</span>
@@ -128,13 +136,15 @@ function createSubjectCard(item) {
     }
   }
 
-  const daysStr = item.days.length > 0
-    ? item.days.map((d) => d.slice(0, 3)).join(", ")
-    : "No schedule";
+  const daysStr =
+    item.days.length > 0
+      ? item.days.map((d) => d.slice(0, 3)).join(", ")
+      : "No schedule";
 
-  const expectedStr = item.expectedTotal > 0
-    ? `<span class="expected">of ${item.expectedTotal} expected</span>`
-    : "";
+  const expectedStr =
+    item.expectedTotal > 0
+      ? `<span class="expected">of ${item.expectedTotal} expected</span>`
+      : "";
 
   return `
     <div class="subject-card" id="card-${item.subjectId}">
@@ -462,12 +472,16 @@ function openDeletePanel() {
   panel.innerHTML = `
     <h3>Select a subject to delete</h3>
     <div class="delete-list">
-      ${cachedSubjects.map((s) => `
+      ${cachedSubjects
+        .map(
+          (s) => `
         <div class="delete-item" id="del-${s.subjectId}">
           <span class="delete-item-name">${s.subject}</span>
           <button class="delete-item-btn" onclick="confirmDelete('${s.subjectId}', '${s.subject.replace(/'/g, "\\'")}')">Delete</button>
         </div>
-      `).join("")}
+      `,
+        )
+        .join("")}
     </div>
   `;
 
