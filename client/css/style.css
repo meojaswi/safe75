@@ -606,6 +606,11 @@ body {
   margin-top: auto;
 }
 
+.sidebar-bottom .sidebar-link {
+  min-height: 44px;
+  padding: 8px 12px;
+}
+
 .sidebar-user {
   font-size: 0.82rem;
   color: var(--text-muted);
