@@ -2,6 +2,11 @@ if (!requireAuth()) {
   // Will redirect to login
 }
 
+const userNameEl = document.getElementById("userName");
+if (userNameEl) {
+  userNameEl.textContent = getUserName();
+}
+
 async function loadSemester() {
   try {
     const data = await api.get("/api/settings/semester");
