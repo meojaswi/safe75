@@ -620,6 +620,11 @@ body {
 
   .hamburger {
     display: block;
+    transition: left var(--transition), background var(--transition);
+  }
+
+  .sidebar.open ~ .main-content .hamburger {
+    left: min(234px, calc(100vw - 62px));
   }
 }
 
