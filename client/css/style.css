@@ -2713,10 +2713,20 @@ body {
 }
 
 .landing-brand {
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-family: "Syne", sans-serif;
+  font-size: 26px;
+  font-weight: 800;
   color: #fff;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.4px;
+  text-shadow: 0 0 20px rgba(34, 197, 94, 0.3);
+}
+
+.landing-brand-safe {
+  color: #ffffff;
+}
+
+.landing-brand-75 {
+  color: #22c55e;
 }
 
 .landing-nav-btns {
@@ -2743,6 +2753,72 @@ body {
 .landing-btn.outline:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: #fff;
+}
+
+.landing-btn.google-login {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.9);
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.landing-btn.google-login:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: #ffffff;
+}
+
+.landing-theme-toggle {
+  border-color: rgba(255, 255, 255, 0.55);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.landing-theme-toggle:hover {
+  border-color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+[data-theme="light"] .landing-btn.google-login {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 22px rgba(8, 34, 48, 0.12);
+}
+
+[data-theme="light"] .landing-btn.google-login:hover {
+  background: rgba(255, 255, 255, 0.24);
+  border-color: #ffffff;
+  box-shadow: 0 10px 26px rgba(8, 34, 48, 0.16);
+}
+
+[data-theme="light"] .landing-theme-toggle {
+  border-color: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+[data-theme="light"] .landing-theme-toggle:hover {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.landing-btn.google-login .google-icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.landing-btn.google-login .google-icon svg {
+  width: 14px;
+  height: 14px;
+  display: block;
 }
 
 /* Hero */
@@ -2952,5 +3028,18 @@ body {
 
   .landing-nav {
     padding: 16px 20px;
+  }
+
+  .landing-nav-btns {
+    gap: 8px;
+  }
+
+  .landing-btn.google-login {
+    padding: 8px 14px;
+    font-size: 0.82rem;
+  }
+
+  .landing-brand {
+    font-size: 23px;
   }
 }
