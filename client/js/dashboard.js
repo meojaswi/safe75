@@ -328,28 +328,12 @@ function renderHeatmap(data) {
 
 /* ===== MAIN RENDER ===== */
 function renderDashboard(data) {
-  const grid = document.getElementById("subjectsGrid");
-
   renderSetupBanner(data);
   renderHolidayBanner();
   renderHeatmap(data);
   renderStatsBar(data);
   renderTodaySection(data.subjects, data.todayDay);
   cachedSubjects = data.subjects;
-
-  if (data.subjects.length === 0) {
-    grid.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">📚</div>
-        <h3>No subjects yet</h3>
-        <p>Add your first subject to start tracking attendance.</p>
-        <a href="add-subject.html" class="btn btn-primary">Add Subject</a>
-      </div>
-    `;
-    return;
-  }
-
-  grid.innerHTML = data.subjects.map(createSubjectCard).join("");
 }
 
 /* ===== LOAD ===== */
@@ -366,8 +350,8 @@ async function loadDashboard() {
 
     renderDashboard(data);
   } catch (error) {
-    const grid = document.getElementById("subjectsGrid");
-    grid.innerHTML = `
+    const todaySection = document.getElementById("todaySection");
+    todaySection.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">⚠</div>
         <h3>Failed to load dashboard</h3>
