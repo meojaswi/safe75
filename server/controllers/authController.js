@@ -18,13 +18,17 @@ function createToken(userId) {
 }
 
 function setAuthCookie(res, token) {
-  const isProd = (process.env.NODE_ENV || "").toLowerCase() === "production";
+  const isProd = isProduction();
   res.cookie("auth_token", token, {
     httpOnly: true,
     secure: isProd,
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
+}
+
+function isProduction() {
+  return (process.env.NODE_ENV || "").toLowerCase() === "production";
 }
 
 function normalizeEmail(email) {
@@ -60,11 +64,7 @@ function getMailTransporter() {
   }
 
   const gmailUser = (process.env.GMAIL_USER || process.env.EMAIL_USER || "").trim();
-  const gmailAppPassword = (
-    process.env.GMAIL_APP_PASSWORD ||
-    process.env.EMAIL_PASS ||
-    ""
-  ).trim();
+  const gmailAppPassword = (process.env.GMAIL_APP_PASSWORD || process.env.EMAIL_PASS || "").trim();
 
   if (!gmailUser || !gmailAppPassword) {
     throw new Error("Gmail mailer is not configured");
@@ -79,6 +79,13 @@ function getMailTransporter() {
   });
 
   return mailTransporter;
+}
+
+function isMailConfigured() {
+  const gmailUser = (process.env.GMAIL_USER || process.env.EMAIL_USER || "").trim();
+  const gmailAppPassword = (process.env.GMAIL_APP_PASSWORD || process.env.EMAIL_PASS || "").trim();
+
+  return Boolean(gmailUser && gmailAppPassword);
 }
 
 async function sendPasswordResetEmail(user, resetUrl) {
@@ -198,14 +205,6 @@ exports.forgotPassword = async (req, res) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    try {
-      getMailTransporter();
-    } catch (mailConfigError) {
-      return res.status(500).json({
-        message: "Password reset email is not configured on the server.",
-      });
-    }
-
     const user = await User.findOne({ email: normalizedEmail });
 
     if (!user) {
@@ -218,10 +217,29 @@ exports.forgotPassword = async (req, res) => {
     user.passwordResetExpires = expiresAt;
     await user.save();
 
-    try {
-      const baseUrl = getClientBaseUrl(req);
-      const resetUrl = `${baseUrl}/reset-password.html?token=${rawToken}`;
+    const baseUrl = getClientBaseUrl(req);
+    const resetUrl = `${baseUrl}/reset-password.html?token=${rawToken}`;
 
+    if (!isMailConfigured()) {
+      if (isProduction()) {
+        user.passwordResetToken = null;
+        user.passwordResetExpires = null;
+        await user.save();
+
+        return res.status(500).json({
+          message: "Password reset email is not configured on the server.",
+        });
+      }
+
+      console.warn(
+        "Password reset email is not configured. Development fallback is active.",
+      );
+      console.info(`Password reset link for ${user.email}: ${resetUrl}`);
+
+      return res.json({ message: RESET_EMAIL_RESPONSE_MESSAGE });
+    }
+
+    try {
       await sendPasswordResetEmail(user, resetUrl);
     } catch (emailError) {
       user.passwordResetToken = null;
@@ -288,7 +306,7 @@ exports.resetPassword = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
-  const isProd = (process.env.NODE_ENV || "").toLowerCase() === "production";
+  const isProd = isProduction();
   res.clearCookie("auth_token", {
     httpOnly: true,
     secure: isProd,
