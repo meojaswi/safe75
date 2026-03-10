@@ -69,26 +69,19 @@ function createProgressRing(percentage) {
 function buildAttendanceMessage(item) {
   if (item.totalClasses <= 0) return "";
 
-  if (item.isLow) {
-    return `<div class="bunk-info danger">⚠ Attend next ${item.needToAttend} class${item.needToAttend !== 1 ? "es" : ""} to reach 75%</div>`;
-  }
-
-  if (item.percentage >= 100) {
-    if (item.canBunk > 0) {
-      return `<div class="bunk-info safe">🌟 Perfect attendance! You can still skip ${item.canBunk} class${item.canBunk !== 1 ? "es" : ""}</div>`;
-    }
-    return `<div class="bunk-info safe">🌟 Perfect attendance so far. Keep attending to build a safe buffer.</div>`;
-  }
-
-  if (item.canBunk > 0) {
-    return `<div class="bunk-info safe">✓ You can safely skip ${item.canBunk} class${item.canBunk !== 1 ? "es" : ""}</div>`;
-  }
-
   if (item.percentage >= 90) {
-    return `<div class="bunk-info safe">✓ Excellent attendance. Stay regular to build bunk buffer.</div>`;
+    return `<div class="bunk-info safe">🌟 This subject thinks you live in the classroom.</div>`;
   }
 
-  return `<div class="bunk-info warning">⚡ Right at the edge — don't miss any!</div>`;
+  if (item.percentage >= 75) {
+    return `<div class="bunk-info safe">✅ You can bunk a little... but don't get greedy.</div>`;
+  }
+
+  if (item.percentage >= 60) {
+    return `<div class="bunk-info warning">⚡ Maybe attend the next class... just saying.</div>`;
+  }
+
+  return `<div class="bunk-info danger">🚨 At this point, just move into the classroom.</div>`;
 }
 
 /* ===== TODAY'S CLASSES ===== */
