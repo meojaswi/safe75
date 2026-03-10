@@ -507,6 +507,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
+  min-height: 68px;
   padding: 10px 12px;
   border-left: 3px solid transparent;
   border-radius: var(--radius-sm);
