@@ -150,18 +150,22 @@ document.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
 
-  const holidayDate = target.getAttribute("data-holiday-date");
+  const holidayTarget = target.closest("[data-holiday-date]");
+  const holidayDate =
+    holidayTarget instanceof HTMLElement
+      ? holidayTarget.getAttribute("data-holiday-date")
+      : null;
   if (holidayDate) {
     toggleHoliday(holidayDate);
     return;
   }
 
-  if (target.id === "prevMonth") {
+  if (target.closest("#prevMonth")) {
     changeMonth(-1);
     return;
   }
 
-  if (target.id === "nextMonth") {
+  if (target.closest("#nextMonth")) {
     changeMonth(1);
   }
 });
