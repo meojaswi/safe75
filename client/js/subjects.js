@@ -9,14 +9,6 @@ if (userNameEl) {
 
 const CIRCLE_RADIUS = 35;
 const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * CIRCLE_RADIUS;
-const EDITABLE_DAYS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
 let cachedSubjects = [];
 let currentDeckIndex = 0;
 let deckCards = [];
@@ -557,25 +549,13 @@ function openEditSubjectDialog(subjectId) {
 
   closeEditSubjectDialog();
 
-  const selectedDays = new Set(Array.isArray(subject.days) ? subject.days : []);
-  const dayCheckboxes = EDITABLE_DAYS.map((day) => {
-    const id = `edit-day-${subject.subjectId}-${day.toLowerCase().slice(0, 3)}`;
-    const checked = selectedDays.has(day) ? "checked" : "";
-    return `
-      <div class="day-checkbox">
-        <input type="checkbox" id="${id}" value="${day}" ${checked} />
-        <label for="${id}">${day.slice(0, 3)}</label>
-      </div>
-    `;
-  }).join("");
-
   const overlay = document.createElement("div");
   overlay.className = "dialog-overlay";
   overlay.id = "editSubjectOverlay";
   overlay.innerHTML = `
     <div class="dialog edit-subject-dialog">
       <h3>Edit Subject</h3>
-      <p>Update the subject details and schedule.</p>
+      <p>Update the subject name and type.</p>
 
       <div class="form-group">
         <label for="editSubjectName">Subject Name</label>
@@ -588,11 +568,6 @@ function openEditSubjectDialog(subjectId) {
           <option value="theory" ${subject.type === "theory" ? "selected" : ""}>Theory</option>
           <option value="lab" ${subject.type === "lab" ? "selected" : ""}>Lab</option>
         </select>
-      </div>
-
-      <div class="form-group">
-        <label>Scheduled Days</label>
-        <div class="days-grid">${dayCheckboxes}</div>
       </div>
 
       <div class="dialog-actions">
@@ -621,10 +596,6 @@ async function saveSubjectEdit(subjectId, btn) {
 
   const name = nameInput.value.trim();
   const type = typeInput.value;
-  const selectedDayNodes = document.querySelectorAll(
-    '#editSubjectOverlay .day-checkbox input[type="checkbox"]:checked',
-  );
-  const days = Array.from(selectedDayNodes).map((node) => node.value);
 
   if (!name) {
     showToast("Subject name is required", "error");
@@ -636,7 +607,7 @@ async function saveSubjectEdit(subjectId, btn) {
   btn.classList.add("loading");
 
   try {
-    await api.put("/api/subjects/" + subjectId, { name, type, days });
+    await api.put("/api/subjects/" + subjectId, { name, type });
     showToast("Subject updated successfully ✓", "success");
     closeEditSubjectDialog();
     await loadSubjects();

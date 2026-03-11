@@ -1420,6 +1420,17 @@ body {
   text-align: center;
 }
 
+.add-subject-warning {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: var(--radius-sm);
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
 /* ===== TOAST NOTIFICATION ===== */
 .toast {
   position: fixed;

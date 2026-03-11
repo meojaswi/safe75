@@ -101,7 +101,11 @@ exports.updateSubject = async (req, res) => {
 
     subject.name = name;
     subject.type = nextType;
-    subject.days = normalizeDays(req.body.days);
+
+    if (Object.prototype.hasOwnProperty.call(req.body, "days")) {
+      subject.days = normalizeDays(req.body.days);
+    }
+
     await subject.save();
 
     return res.json({
