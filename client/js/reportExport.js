@@ -1,23 +1,33 @@
 (function () {
   const THRESHOLD_PERCENT = 75;
-  let chartInstance = null;
+  let overallChartInstance = null;
+  let subjectChartInstance = null;
   let exportInProgress = false;
 
   function parsePayload() {
     const payloadEl = document.getElementById("reportPayload");
     if (!payloadEl) {
-      return { subjects: [], filename: "safe75-semester-report.pdf" };
+      return {
+        overall: null,
+        subjects: [],
+        filename: "safe75-semester-report.pdf",
+      };
     }
 
     try {
       const parsed = JSON.parse(payloadEl.textContent || "{}");
       return {
+        overall: parsed.overall || null,
         subjects: Array.isArray(parsed.subjects) ? parsed.subjects : [],
         filename: parsed.filename || "safe75-semester-report.pdf",
       };
     } catch (error) {
       console.error("Failed to parse report payload:", error);
-      return { subjects: [], filename: "safe75-semester-report.pdf" };
+      return {
+        overall: null,
+        subjects: [],
+        filename: "safe75-semester-report.pdf",
+      };
     }
   }
 
@@ -80,29 +90,145 @@
     },
   };
 
-  function renderSubjectBarChart(subjects) {
-    const canvas = document.getElementById("subjectAttendanceBarChart");
-    if (!canvas) return;
+  function waitForImageReady(img) {
+    return new Promise((resolve) => {
+      if (img.complete) {
+        resolve();
+        return;
+      }
+
+      const finalize = () => resolve();
+      img.addEventListener("load", finalize, { once: true });
+      img.addEventListener("error", finalize, { once: true });
+    });
+  }
+
+  function freezeCanvasesForPdf(root) {
+    const replacements = [];
+    const readyTasks = [];
+    const canvases = Array.from(root.querySelectorAll("canvas"));
+
+    for (const canvas of canvases) {
+      try {
+        const dataUrl = canvas.toDataURL("image/png");
+        const img = document.createElement("img");
+        img.src = dataUrl;
+        img.alt = canvas.getAttribute("aria-label") || "Chart snapshot";
+        img.className = `${canvas.className || ""} pdf-canvas-snapshot`.trim();
+        img.style.cssText = canvas.style.cssText;
+        img.style.display = "block";
+        img.style.width = `${canvas.clientWidth || canvas.width}px`;
+        img.style.height = `${canvas.clientHeight || canvas.height}px`;
+        img.style.maxWidth = "100%";
+
+        const parent = canvas.parentNode;
+        if (!parent) continue;
+
+        parent.replaceChild(img, canvas);
+        readyTasks.push(waitForImageReady(img));
+        replacements.push({ parent, canvas, img });
+      } catch (error) {
+        console.warn("Skipping canvas snapshot conversion:", error);
+      }
+    }
+
+    return {
+      ready: Promise.all(readyTasks),
+      restore() {
+        for (const entry of replacements) {
+          const { parent, canvas, img } = entry;
+          if (parent && img.parentNode === parent) {
+            parent.replaceChild(canvas, img);
+          }
+        }
+      },
+    };
+  }
+
+  function freezeSvgsForPdf(root) {
+    const replacements = [];
+    const readyTasks = [];
+    const svgs = Array.from(root.querySelectorAll("svg"));
+
+    for (const svg of svgs) {
+      try {
+        const clone = svg.cloneNode(true);
+        if (!clone.getAttribute("xmlns")) {
+          clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        }
+        if (!clone.getAttribute("xmlns:xlink")) {
+          clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        }
+
+        const serializer = new XMLSerializer();
+        const svgMarkup = serializer.serializeToString(clone);
+        const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgMarkup)}`;
+
+        const img = document.createElement("img");
+        img.src = dataUrl;
+        img.alt = svg.getAttribute("aria-label") || "SVG snapshot";
+        img.className = `${svg.className?.baseVal || ""} pdf-svg-snapshot`.trim();
+        img.style.cssText = svg.style.cssText;
+        img.style.display = "block";
+        img.style.width = `${svg.clientWidth || svg.getBoundingClientRect().width || 0}px`;
+        img.style.height = `${svg.clientHeight || svg.getBoundingClientRect().height || 0}px`;
+        img.style.maxWidth = "100%";
+
+        const parent = svg.parentNode;
+        if (!parent) continue;
+
+        parent.replaceChild(img, svg);
+        readyTasks.push(waitForImageReady(img));
+        replacements.push({ parent, svg, img });
+      } catch (error) {
+        console.warn("Skipping SVG snapshot conversion:", error);
+      }
+    }
+
+    return {
+      ready: Promise.all(readyTasks),
+      restore() {
+        for (const entry of replacements) {
+          const { parent, svg, img } = entry;
+          if (parent && img.parentNode === parent) {
+            parent.replaceChild(svg, img);
+          }
+        }
+      },
+    };
+  }
+
+  function destroyChartIfAny(chartRef) {
+    if (chartRef && typeof chartRef.destroy === "function") {
+      chartRef.destroy();
+    }
+  }
+
+  function createAttendanceBarChart(canvas, entries, opts = {}) {
+    if (!canvas) return null;
 
     if (typeof Chart === "undefined") {
       console.error("Chart.js failed to load");
-      return;
+      return null;
     }
 
-    const labels = subjects.map((subject) => subject.label || "Subject");
-    const values = subjects.map((subject) => Number(subject.percentage) || 0);
+    const labels = entries.map((entry) => entry.label || "Attendance");
+    const values = entries.map((entry) => Number(entry.percentage) || 0);
     const colors = values.map((value) =>
       value >= THRESHOLD_PERCENT ? "#22c55e" : "#ef4444",
     );
 
-    const chartHeight = Math.max(420, labels.length * 42);
+    const chartHeight =
+      typeof opts.fixedHeight === "number"
+        ? opts.fixedHeight
+        : Math.max(420, labels.length * 42);
     const wrapper = canvas.parentElement;
     if (wrapper) {
       wrapper.style.height = `${chartHeight}px`;
     }
 
     const ctx = canvas.getContext("2d");
-    chartInstance = new Chart(ctx, {
+    return new Chart(ctx, {
       type: "bar",
       data: {
         labels,
@@ -125,7 +251,7 @@
         animation: false,
         layout: {
           padding: {
-            right: 74,
+            right: typeof opts.rightPadding === "number" ? opts.rightPadding : 74,
           },
         },
         scales: {
@@ -142,7 +268,7 @@
             },
             title: {
               display: true,
-              text: "Attendance Percentage",
+              text: opts.xTitle || "Attendance Percentage",
               color: "#334155",
               font: {
                 size: 12,
@@ -169,13 +295,43 @@
           },
           tooltip: {
             callbacks: {
-              label: (context) => ` ${formatPercentValue(context.raw)}%`,
+              label: (context) =>
+                ` ${formatPercentValue(context.raw)}%`,
             },
           },
         },
       },
       plugins: [thresholdLinePlugin, valueLabelPlugin],
     });
+  }
+
+  function renderOverallBarChart(overall) {
+    const canvas = document.getElementById("overallAttendanceBarChart");
+    if (!canvas || !overall) return;
+
+    destroyChartIfAny(overallChartInstance);
+    overallChartInstance = createAttendanceBarChart(
+      canvas,
+      [
+        {
+          label: overall.label || "Overall Attendance",
+          percentage: Number(overall.percentage) || 0,
+        },
+      ],
+      {
+        fixedHeight: 120,
+        rightPadding: 64,
+        xTitle: "Overall Percentage",
+      },
+    );
+  }
+
+  function renderSubjectBarChart(subjects) {
+    const canvas = document.getElementById("subjectAttendanceBarChart");
+    if (!canvas) return;
+
+    destroyChartIfAny(subjectChartInstance);
+    subjectChartInstance = createAttendanceBarChart(canvas, subjects);
   }
 
   async function generateReportPdf(autoTriggered) {
@@ -194,14 +350,21 @@
     exportInProgress = true;
     const exportBtn = document.getElementById("exportPdfBtn");
     const previousLabel = exportBtn ? exportBtn.textContent : "";
+    let restoreCanvases = () => {};
+    let restoreSvgs = () => {};
     if (exportBtn) {
       exportBtn.disabled = true;
       exportBtn.textContent = "Generating PDF...";
     }
 
     try {
-      if (chartInstance) {
-        chartInstance.resize();
+      if (overallChartInstance) {
+        overallChartInstance.resize();
+        overallChartInstance.update("none");
+      }
+      if (subjectChartInstance) {
+        subjectChartInstance.resize();
+        subjectChartInstance.update("none");
       }
 
       await new Promise((resolve) => {
@@ -214,6 +377,12 @@
         "-",
       );
       reportRoot.classList.add("pdf-exporting");
+      const frozenCanvases = freezeCanvasesForPdf(reportRoot);
+      const frozenSvgs = freezeSvgsForPdf(reportRoot);
+      restoreCanvases = frozenCanvases.restore;
+      restoreSvgs = frozenSvgs.restore;
+
+      await Promise.all([frozenCanvases.ready, frozenSvgs.ready]);
 
       const options = {
         margin: [8, 8, 8, 8],
@@ -224,6 +393,7 @@
         html2canvas: {
           scale: 2,
           useCORS: true,
+          allowTaint: true,
           backgroundColor: "#ffffff",
           logging: false,
         },
@@ -242,6 +412,8 @@
         alert("Failed to export PDF. Please try again.");
       }
     } finally {
+      restoreSvgs();
+      restoreCanvases();
       reportRoot.classList.remove("pdf-exporting");
       exportInProgress = false;
       if (exportBtn) {
@@ -253,6 +425,9 @@
 
   function initReportPage() {
     const payload = parsePayload();
+    if (payload.overall) {
+      renderOverallBarChart(payload.overall);
+    }
     if (payload.subjects.length > 0) {
       renderSubjectBarChart(payload.subjects);
     }

@@ -83,84 +83,6 @@ function formatDisplayDate(dateStr) {
   });
 }
 
-function createDonutSvg(percent, size, isEmpty = false) {
-  const safePercent = Number.isFinite(percent)
-    ? Math.max(0, Math.min(percent, 100))
-    : 0;
-  const chartSize = Number(size) > 0 ? Number(size) : 120;
-  const strokeWidth = chartSize <= 120 ? 14 : 18;
-  const radius = chartSize / 2 - strokeWidth / 2;
-  const center = chartSize / 2;
-  const circumference = 2 * Math.PI * radius;
-  const arcLength = (safePercent / 100) * circumference;
-  const trackClass = isEmpty ? "donut-track-neutral" : "donut-track-absent";
-
-  return `
-    <svg class="donut-svg" viewBox="0 0 ${chartSize} ${chartSize}" role="img" aria-label="${safePercent}% attendance">
-      <circle
-        class="donut-track ${trackClass}"
-        cx="${center}"
-        cy="${center}"
-        r="${radius}"
-        stroke-width="${strokeWidth}"
-      />
-      ${
-        !isEmpty && arcLength > 0
-          ? `
-        <circle
-          class="donut-progress"
-          cx="${center}"
-          cy="${center}"
-          r="${radius}"
-          stroke-width="${strokeWidth}"
-          stroke-dasharray="${arcLength.toFixed(2)} ${circumference.toFixed(2)}"
-        />
-      `
-          : ""
-      }
-    </svg>
-  `;
-}
-
-function createSolidPieSvg(percent, size, isEmpty = false) {
-  const safePercent = Number.isFinite(percent)
-    ? Math.max(0, Math.min(percent, 100))
-    : 0;
-  const chartSize = Number(size) > 0 ? Number(size) : 170;
-  const center = chartSize / 2;
-  const radius = chartSize / 4;
-  const strokeWidth = chartSize / 2;
-  const circumference = 2 * Math.PI * radius;
-  const arcLength = (safePercent / 100) * circumference;
-  const trackClass = isEmpty ? "solid-pie-track-neutral" : "solid-pie-track-absent";
-
-  return `
-    <svg class="solid-pie-svg" viewBox="0 0 ${chartSize} ${chartSize}" role="img" aria-label="${safePercent}% present">
-      <circle
-        class="solid-pie-track ${trackClass}"
-        cx="${center}"
-        cy="${center}"
-        r="${radius}"
-        stroke-width="${strokeWidth}"
-      />
-      ${
-        !isEmpty && arcLength > 0
-          ? `
-        <circle
-          class="solid-pie-progress"
-          cx="${center}"
-          cy="${center}"
-          r="${radius}"
-          stroke-width="${strokeWidth}"
-          stroke-dasharray="${arcLength.toFixed(2)} ${circumference.toFixed(2)}"
-        />
-      `
-          : ""
-      }
-    </svg>
-  `;
-}
-
 function buildSemesterReportHtml(exportData) {
   const semester = exportData?.semester || {};
   const semesterStart = semester.semesterStart || null;
@@ -243,6 +165,10 @@ function buildSemesterReportHtml(exportData) {
   const subjectChartHeight = Math.max(420, subjectChartData.length * 42);
   const filenameSeed = (semesterStart || "semester-report").replace(/[^a-zA-Z0-9_-]/g, "-");
   const reportPayloadJson = JSON.stringify({
+    overall: {
+      label: "Overall Attendance",
+      percentage: overallPct,
+    },
     subjects: subjectChartData,
     filename: `safe75-${filenameSeed}.pdf`,
   })
@@ -366,68 +292,19 @@ function buildSemesterReportHtml(exportData) {
         margin: 0 0 10px;
         font-size: 16px;
       }
-      .pie-section {
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 14px;
-      }
-      .overall-pie-row {
+      .overall-bar-row {
         display: grid;
-        grid-template-columns: 190px 1fr;
-        gap: 18px;
-        align-items: center;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        align-items: start;
       }
-      .pie-chart {
-        width: 170px;
-        height: 170px;
+      .overall-bar-canvas-wrap {
         position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto;
-        overflow: hidden;
-      }
-      .donut-svg {
         width: 100%;
-        height: 100%;
-        display: block;
       }
-      .donut-track {
-        fill: none;
-      }
-      .donut-track-absent {
-        stroke: #ef4444;
-      }
-      .donut-track-neutral {
-        stroke: #cbd5e1;
-      }
-      .donut-progress {
-        fill: none;
-        stroke: #22c55e;
-        stroke-linecap: butt;
-        transform: rotate(-90deg);
-        transform-origin: 50% 50%;
-      }
-      .solid-pie-svg {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-      .solid-pie-track {
-        fill: none;
-      }
-      .solid-pie-track-absent {
-        stroke: #ef4444;
-      }
-      .solid-pie-track-neutral {
-        stroke: #cbd5e1;
-      }
-      .solid-pie-progress {
-        fill: none;
-        stroke: #22c55e;
-        stroke-linecap: butt;
-        transform: rotate(-90deg);
-        transform-origin: 50% 50%;
+      #overallAttendanceBarChart {
+        width: 100% !important;
+        height: 100% !important;
       }
       .pie-legend {
         display: grid;
@@ -533,18 +410,11 @@ function buildSemesterReportHtml(exportData) {
         .stats-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
-        .overall-pie-row {
+        .overall-bar-row {
           grid-template-columns: 1fr;
         }
       }
       @media print {
-        .pie-chart,
-        .donut-track-absent,
-        .donut-track-neutral,
-        .donut-progress,
-        .solid-pie-track-absent,
-        .solid-pie-track-neutral,
-        .solid-pie-progress,
         .dot {
           -webkit-print-color-adjust: exact;
           print-color-adjust: exact;
@@ -600,11 +470,11 @@ function buildSemesterReportHtml(exportData) {
       </div>
 
       <section class="section">
-        <h3>Overall Attendance Pie Chart</h3>
-        <div class="pie-section">
-          <div class="overall-pie-row">
-            <div class="pie-chart">
-              ${createSolidPieSvg(overallPct, 170, totalClasses === 0)}
+        <h3>Overall Attendance Bar Chart</h3>
+        <div class="subject-bar-card">
+          <div class="overall-bar-row">
+            <div class="overall-bar-canvas-wrap" style="height:120px;">
+              <canvas id="overallAttendanceBarChart"></canvas>
             </div>
             <div class="pie-legend">
               <div>
