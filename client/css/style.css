@@ -1390,7 +1390,7 @@ body {
 .reset-export-actions {
   display: grid;
   gap: 10px;
-  margin-top: -4px;
+  margin-top: 12px;
 }
 
 .reset-export-actions .btn {
@@ -1401,6 +1401,36 @@ body {
   margin-top: 14px;
   color: var(--text-muted);
   font-size: 0.8rem;
+}
+
+.reset-export-form {
+  margin-top: 4px;
+}
+
+.reset-export-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.reset-export-form input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.reset-export-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
 .reset-confirm-wrap {

@@ -156,6 +156,14 @@ function buildSemesterReportHtml(exportData) {
     totalClasses > 0 ? Number(((totalPresent / totalClasses) * 100).toFixed(1)) : 0;
   const overallAbsentPct =
     totalClasses > 0 ? Number((100 - overallPct).toFixed(1)) : 0;
+  const parsedReportSemester = Number(exportData?.reportSemester);
+  const hasReportSemester =
+    Number.isInteger(parsedReportSemester) &&
+    parsedReportSemester >= 1 &&
+    parsedReportSemester <= 8;
+  const reportSemesterLabel = hasReportSemester
+    ? `Semester ${parsedReportSemester}`
+    : "Semester not specified";
 
   const subjectChartData = subjectRows.map((item) => ({
     label: `${item.name} (${item.type === "lab" ? "Lab" : "Theory"})`,
@@ -170,7 +178,7 @@ function buildSemesterReportHtml(exportData) {
       percentage: overallPct,
     },
     subjects: subjectChartData,
-    filename: `safe75-${filenameSeed}.pdf`,
+    filename: `safe75-${hasReportSemester ? `sem-${parsedReportSemester}` : "sem-na"}-${filenameSeed}.pdf`,
   })
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
@@ -434,6 +442,7 @@ function buildSemesterReportHtml(exportData) {
         <div class="brand"><span class="brand-safe">Safe</span><span class="brand-75">75</span></div>
         <h1 class="title">Semester Attendance Report</h1>
         <p class="meta">
+          Report For: ${escapeReportText(reportSemesterLabel)}<br />
           Generated: ${escapeReportText(generatedAt)}<br />
           Student: ${escapeReportText(user.name || "Student")} (${escapeReportText(user.email || "-")})
         </p>
@@ -442,6 +451,10 @@ function buildSemesterReportHtml(exportData) {
           <div class="info-card">
             <div class="info-label">Semester Window</div>
             <div class="info-value">${escapeReportText(semesterWindow)}</div>
+          </div>
+          <div class="info-card">
+            <div class="info-label">Report Semester</div>
+            <div class="info-value">${escapeReportText(reportSemesterLabel)}</div>
           </div>
         </div>
       </header>
@@ -883,10 +896,33 @@ function closeSemesterResetDialog() {
   document.getElementById("semesterResetOverlay")?.remove();
 }
 
-async function exportSemesterReportPdf(btn) {
+function getReportSemesterInputValue() {
+  const input = document.getElementById("reportSemesterInput");
+  const raw = input ? input.value.trim() : "";
+  const semester = Number(raw);
+
+  if (!raw || !Number.isInteger(semester) || semester < 1 || semester > 8) {
+    showToast("Enter a valid semester number (1-8)", "error");
+    input?.focus();
+    return null;
+  }
+
+  return semester;
+}
+
+async function exportSemesterReportPdf(btn, reportSemester) {
   const actionBtn = btn instanceof HTMLElement ? btn : null;
   const originalLabel = actionBtn ? actionBtn.innerHTML : "";
   let reportWindow = null;
+
+  if (
+    !Number.isInteger(reportSemester) ||
+    reportSemester < 1 ||
+    reportSemester > 8
+  ) {
+    showToast("Enter a valid semester number (1-8)", "error");
+    return;
+  }
 
   if (actionBtn) {
     actionBtn.innerHTML = '<span class="loading-spinner"></span>';
@@ -927,9 +963,13 @@ async function exportSemesterReportPdf(btn) {
     reportWindow.document.close();
 
     const data = await api.get("/api/settings/semester/export");
+    const reportData = {
+      ...data,
+      reportSemester,
+    };
 
     reportWindow.document.open();
-    reportWindow.document.write(buildSemesterReportHtml(data));
+    reportWindow.document.write(buildSemesterReportHtml(reportData));
     reportWindow.document.close();
 
     const attemptAutoExport = (attempt = 0) => {
@@ -993,12 +1033,25 @@ function openSemesterExportDialog() {
       <h3>Start New Semester</h3>
       <p>Before clearing your current semester data, export it so you keep a personal backup.</p>
 
+      <div class="reset-export-form">
+        <label for="reportSemesterInput">Semester Number</label>
+        <input
+          id="reportSemesterInput"
+          type="number"
+          min="1"
+          max="8"
+          step="1"
+          inputmode="numeric"
+          placeholder="Enter semester (1-8)"
+        />
+      </div>
+
       <div class="reset-export-actions">
         <button class="btn btn-sm btn-primary" data-semester-report>
           Download Semester Report (PDF)
         </button>
       </div>
-      <p class="reset-export-note">A printable report opens in a new tab. Select "Save as PDF" in the print dialog.</p>
+      <p class="reset-export-note">A printable report opens in a new tab with your selected semester label.</p>
 
       <div class="dialog-actions">
         <button class="btn btn-sm btn-ghost" data-semester-close>Cancel</button>
@@ -1297,7 +1350,11 @@ document.addEventListener("click", (event) => {
 
   const reportBtn = target.closest("[data-semester-report]");
   if (reportBtn) {
-    exportSemesterReportPdf(reportBtn);
+    const selectedSemester = getReportSemesterInputValue();
+    if (!selectedSemester) {
+      return;
+    }
+    exportSemesterReportPdf(reportBtn, selectedSemester);
     return;
   }
 
