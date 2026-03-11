@@ -7,11 +7,19 @@ if (userNameEl) {
   userNameEl.textContent = getUserName();
 }
 
+function resetSubmitButton() {
+  const btn = document.getElementById("submitBtn");
+  if (!btn) return;
+  btn.textContent = "Add Subject";
+  btn.classList.remove("loading");
+}
+
 async function handleAddSubject(e) {
   e.preventDefault();
 
   const alert = document.getElementById("alert");
   const btn = document.getElementById("submitBtn");
+  const form = document.getElementById("addForm");
 
   const name = document.getElementById("name").value.trim();
   const type = document.getElementById("type").value;
@@ -35,24 +43,32 @@ async function handleAddSubject(e) {
   try {
     await api.post("/api/subjects", { name, type, days });
 
-    showToast("Subject added successfully ✓");
-
-    setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 800);
+    showToast("Subject added successfully ✓", "success");
+    alert.classList.remove("show");
+    form?.reset();
+    document.getElementById("name")?.focus();
+    resetSubmitButton();
   } catch (error) {
     alert.textContent = error.message;
     alert.classList.add("show");
-    btn.textContent = "Add Subject";
-    btn.classList.remove("loading");
+    resetSubmitButton();
   }
 
   return false;
+}
+
+function handleSaveSubjects() {
+  window.location.href = "subjects.html";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("addForm");
   if (form) {
     form.addEventListener("submit", handleAddSubject);
+  }
+
+  const saveBtn = document.getElementById("saveBtn");
+  if (saveBtn) {
+    saveBtn.addEventListener("click", handleSaveSubjects);
   }
 });
