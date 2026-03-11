@@ -136,7 +136,7 @@ exports.resetSemesterData = async (req, res) => {
 
   if (confirmation !== "RESET") {
     return res.status(400).json({
-      message: "Type RESET to confirm semester reset",
+      message: "TYPE RESET IN CAPS TO CONTINUE",
     });
   }
 

@@ -1087,7 +1087,7 @@ function openSemesterResetConfirmDialog() {
       <p>This permanently deletes current subjects, attendance, holidays and semester dates from your account.</p>
 
       <div class="reset-confirm-wrap">
-        <label for="resetConfirmInput">Type RESET to continue</label>
+        <label for="resetConfirmInput">TYPE RESET IN CAPS TO CONTINUE</label>
         <input id="resetConfirmInput" type="text" autocomplete="off" placeholder="RESET" />
         <div class="reset-warning">This action cannot be undone.</div>
       </div>
@@ -1119,7 +1119,7 @@ async function resetSemesterData(btn) {
   const confirmation = confirmInput ? confirmInput.value.trim() : "";
 
   if (confirmation !== "RESET") {
-    showToast("Type RESET to continue", "error");
+    showToast("TYPE RESET IN CAPS TO CONTINUE", "error");
     confirmInput?.focus();
     return;
   }
