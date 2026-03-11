@@ -35,10 +35,11 @@ app.use(
 app.use((req, res, next) => {
   const csp = [
     "default-src 'self'",
-    "script-src 'self' https://accounts.google.com",
+    "script-src 'self' https://accounts.google.com https://cdn.jsdelivr.net",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-    "img-src 'self' data:",
+    "img-src 'self' data: blob:",
     "connect-src 'self'",
+    "worker-src 'self' blob:",
     "font-src 'self' data: https://fonts.gstatic.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
