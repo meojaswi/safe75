@@ -868,10 +868,11 @@ function handleAddSubject(form) {
   }
 
   const duplicate = state.subjects.some(
-    (subject) => subject.name.toLowerCase() === name.toLowerCase(),
+    (subject) =>
+      subject.name.toLowerCase() === name.toLowerCase() && subject.type === type,
   );
   if (duplicate) {
-    setError("This subject is already in your list.");
+    setError("This subject with the same type is already in your list.");
     render();
     return;
   }
