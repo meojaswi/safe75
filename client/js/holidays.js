@@ -10,6 +10,8 @@ if (userNameEl) {
 let currentYear;
 let currentMonth;
 let holidays = [];
+let semesterStart = "";
+let semesterEnd = "";
 
 const MONTH_NAMES = [
   "January",
@@ -30,6 +32,88 @@ function formatDate(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+function isValidDateString(value) {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+
+function hasValidSemesterRange() {
+  if (!isValidDateString(semesterStart) || !isValidDateString(semesterEnd)) {
+    return false;
+  }
+
+  return new Date(`${semesterEnd}T00:00:00`) > new Date(`${semesterStart}T00:00:00`);
+}
+
+function isDateWithinSemester(dateStr) {
+  if (!isValidDateString(dateStr)) {
+    return false;
+  }
+
+  if (!hasValidSemesterRange()) {
+    return true;
+  }
+
+  return dateStr >= semesterStart && dateStr <= semesterEnd;
+}
+
+function monthBounds(year, month) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  return {
+    first: formatDate(year, month, 1),
+    last: formatDate(year, month, daysInMonth),
+  };
+}
+
+function isMonthWithinSemester(year, month) {
+  if (!hasValidSemesterRange()) {
+    return true;
+  }
+
+  const { first, last } = monthBounds(year, month);
+  return !(last < semesterStart || first > semesterEnd);
+}
+
+function canChangeMonth(delta) {
+  if (!Number.isInteger(delta) || delta === 0) {
+    return false;
+  }
+
+  let nextMonth = currentMonth + delta;
+  let nextYear = currentYear;
+  if (nextMonth > 11) {
+    nextMonth = 0;
+    nextYear += 1;
+  } else if (nextMonth < 0) {
+    nextMonth = 11;
+    nextYear -= 1;
+  }
+
+  return isMonthWithinSemester(nextYear, nextMonth);
+}
+
+function clampCurrentMonthToSemester() {
+  if (!hasValidSemesterRange()) {
+    return;
+  }
+
+  if (isMonthWithinSemester(currentYear, currentMonth)) {
+    return;
+  }
+
+  const { first, last } = monthBounds(currentYear, currentMonth);
+  const target = last < semesterStart ? semesterStart : semesterEnd;
+  const [targetYear, targetMonth] = target.split("-").map(Number);
+  currentYear = targetYear;
+  currentMonth = targetMonth - 1;
+}
+
+function setMonthNavDisabledState() {
+  const prevBtn = document.getElementById("prevMonth");
+  const nextBtn = document.getElementById("nextMonth");
+  if (prevBtn) prevBtn.disabled = !canChangeMonth(-1);
+  if (nextBtn) nextBtn.disabled = !canChangeMonth(1);
+}
+
 function formatDateReadable(dateStr) {
   const [y, m, d] = dateStr.split("-");
   return `${parseInt(d)} ${MONTH_NAMES[parseInt(m) - 1]} ${y}`;
@@ -37,7 +121,14 @@ function formatDateReadable(dateStr) {
 
 async function loadHolidays() {
   try {
-    holidays = await api.get("/api/holidays");
+    const [holidayData, semesterData] = await Promise.all([
+      api.get("/api/holidays"),
+      api.get("/api/settings/semester"),
+    ]);
+    holidays = Array.isArray(holidayData) ? holidayData : [];
+    semesterStart = semesterData?.semesterStart || "";
+    semesterEnd = semesterData?.semesterEnd || "";
+    clampCurrentMonthToSemester();
     renderCalendar();
     renderHolidayList();
   } catch (error) {
@@ -48,6 +139,7 @@ async function loadHolidays() {
 function renderCalendar() {
   const grid = document.getElementById("calendarGrid");
   const title = document.getElementById("calendarTitle");
+  clampCurrentMonthToSemester();
 
   title.textContent = `${MONTH_NAMES[currentMonth]} ${currentYear}`;
 
@@ -68,20 +160,27 @@ function renderCalendar() {
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = formatDate(currentYear, currentMonth, day);
+    const inSemester = isDateWithinSemester(dateStr);
     const isHoliday = holidays.includes(dateStr);
     const isToday = dateStr === todayStr;
 
     let classes = "calendar-day";
+    if (!inSemester) classes += " disabled";
     if (isHoliday) classes += " holiday";
     if (isToday) classes += " today";
+    const clickAttr = inSemester ? `data-holiday-date="${dateStr}"` : "";
+    const titleText = inSemester
+      ? formatDateReadable(dateStr)
+      : `${formatDateReadable(dateStr)} (Outside semester timeline)`;
 
-    html += `<div class="${classes}" data-holiday-date="${dateStr}" title="${formatDateReadable(dateStr)}">
+    html += `<div class="${classes}" ${clickAttr} title="${titleText}">
       <span class="day-num">${day}</span>
       ${isHoliday ? '<span class="day-badge">🏖</span>' : ""}
     </div>`;
   }
 
   grid.innerHTML = html;
+  setMonthNavDisabledState();
 }
 
 function renderHolidayList() {
@@ -112,7 +211,14 @@ function renderHolidayList() {
 
 async function toggleHoliday(dateStr) {
   try {
-    if (holidays.includes(dateStr)) {
+    const isAlreadyHoliday = holidays.includes(dateStr);
+
+    if (!isAlreadyHoliday && !isDateWithinSemester(dateStr)) {
+      showToast("Select holiday dates within your semester timeline.", "error");
+      return;
+    }
+
+    if (isAlreadyHoliday) {
       await api.delete("/api/holidays/" + dateStr);
       holidays = holidays.filter((d) => d !== dateStr);
       showToast("Holiday removed", "success");
@@ -129,6 +235,10 @@ async function toggleHoliday(dateStr) {
 }
 
 function changeMonth(delta) {
+  if (!canChangeMonth(delta)) {
+    return;
+  }
+
   currentMonth += delta;
   if (currentMonth > 11) {
     currentMonth = 0;

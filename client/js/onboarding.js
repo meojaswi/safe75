@@ -133,8 +133,104 @@ function formatIsoDate(year, month, day) {
   return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
+function getSemesterBounds() {
+  const start = state.semester.start;
+  const end = state.semester.end;
+  if (!isValidSemesterRange(start, end)) {
+    return null;
+  }
+
+  return { start, end };
+}
+
+function isDateWithinSemester(date) {
+  if (!isValidDateString(date)) {
+    return false;
+  }
+
+  const bounds = getSemesterBounds();
+  if (!bounds) {
+    return true;
+  }
+
+  return date >= bounds.start && date <= bounds.end;
+}
+
+function getMonthBoundaryDates(year, month) {
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  return {
+    first: formatIsoDate(year, month, 1),
+    last: formatIsoDate(year, month, daysInMonth),
+  };
+}
+
+function isHolidayCalendarMonthAllowed(year, month) {
+  const bounds = getSemesterBounds();
+  if (!bounds) {
+    return true;
+  }
+
+  const { first, last } = getMonthBoundaryDates(year, month);
+  return !(last < bounds.start || first > bounds.end);
+}
+
+function canMoveHolidayCalendar(delta) {
+  if (!Number.isInteger(delta) || delta === 0) {
+    return false;
+  }
+
+  let { month, year } = state.holidayCalendar;
+  month += delta;
+
+  if (month > 11) {
+    month = 0;
+    year += 1;
+  } else if (month < 0) {
+    month = 11;
+    year -= 1;
+  }
+
+  return isHolidayCalendarMonthAllowed(year, month);
+}
+
+function clampHolidayCalendarToSemester() {
+  const bounds = getSemesterBounds();
+  if (!bounds) {
+    return;
+  }
+
+  const { year, month } = state.holidayCalendar;
+  if (isHolidayCalendarMonthAllowed(year, month)) {
+    return;
+  }
+
+  const { first, last } = getMonthBoundaryDates(year, month);
+  const targetDate = last < bounds.start ? bounds.start : first > bounds.end ? bounds.end : bounds.start;
+  const [targetYear, targetMonth] = targetDate.split("-").map(Number);
+
+  state.holidayCalendar.year = targetYear;
+  state.holidayCalendar.month = targetMonth - 1;
+}
+
+function keepHolidaysWithinSemester() {
+  const bounds = getSemesterBounds();
+  if (!bounds) {
+    return;
+  }
+
+  state.holidays = uniqueSortedDates(
+    state.holidays.filter((date) => date >= bounds.start && date <= bounds.end),
+  );
+}
+
 function toggleHolidayDate(date) {
   if (!isValidDateString(date)) {
+    return;
+  }
+
+  if (!isDateWithinSemester(date)) {
+    setError("Select holiday dates within your semester timeline.");
+    render();
     return;
   }
 
@@ -149,7 +245,7 @@ function toggleHolidayDate(date) {
 }
 
 function changeHolidayCalendarMonth(delta) {
-  if (!Number.isInteger(delta) || delta === 0) {
+  if (!canMoveHolidayCalendar(delta)) {
     return;
   }
 
@@ -188,15 +284,23 @@ function renderHolidayCalendarCells() {
 
   for (let day = 1; day <= daysInMonth; day += 1) {
     const date = formatIsoDate(year, month, day);
+    const inSemester = isDateWithinSemester(date);
     const isHoliday = state.holidays.includes(date);
     const isToday = date === todayStr;
 
     let classes = "calendar-day";
+    if (!inSemester) classes += " disabled";
     if (isHoliday) classes += " holiday";
     if (isToday) classes += " today";
+    const clickAttr = inSemester
+      ? `data-onboarding-holiday-date="${escapeHtml(date)}"`
+      : "";
+    const title = inSemester
+      ? formatHolidayDate(date)
+      : `${formatHolidayDate(date)} (Outside semester timeline)`;
 
     html += `
-      <div class="${classes}" data-onboarding-holiday-date="${escapeHtml(date)}" title="${escapeHtml(formatHolidayDate(date))}">
+      <div class="${classes}" ${clickAttr} title="${escapeHtml(title)}">
         <span class="day-num">${day}</span>
       </div>
     `;
@@ -579,20 +683,26 @@ function renderHolidaysStep() {
           .join("")
       : '<p class="text-muted onboarding-empty-note">No holidays selected yet.</p>';
   const { year, month } = state.holidayCalendar;
+  const canGoPrevMonth = canMoveHolidayCalendar(-1);
+  const canGoNextMonth = canMoveHolidayCalendar(1);
+  const semesterHint =
+    isValidSemesterRange(state.semester.start, state.semester.end)
+      ? `Only ${escapeHtml(formatHolidayDate(state.semester.start))} to ${escapeHtml(formatHolidayDate(state.semester.end))} can be selected.`
+      : "Set your semester timeline first to add holidays.";
 
   return `
     <section class="form-card onboarding-step-card">
       <p class="onboarding-step-meta">Step 3 of 3</p>
       <h2>Add Holidays</h2>
-      <p class="onboarding-step-copy">Click dates to toggle holidays, and use arrows to switch months.</p>
+      <p class="onboarding-step-copy">Click dates to toggle holidays. Calendar navigation is limited to your semester timeline.</p>
 
       <div class="calendar-card onboarding-holiday-card">
         <div class="calendar-nav">
-          <button type="button" class="btn btn-ghost btn-sm" data-onboarding-holiday-month="-1" aria-label="Previous month">
+          <button type="button" class="btn btn-ghost btn-sm" data-onboarding-holiday-month="-1" aria-label="Previous month" ${canGoPrevMonth ? "" : "disabled"}>
             ←
           </button>
           <h3>${MONTH_NAMES[month]} ${year}</h3>
-          <button type="button" class="btn btn-ghost btn-sm" data-onboarding-holiday-month="1" aria-label="Next month">
+          <button type="button" class="btn btn-ghost btn-sm" data-onboarding-holiday-month="1" aria-label="Next month" ${canGoNextMonth ? "" : "disabled"}>
             →
           </button>
         </div>
@@ -608,7 +718,7 @@ function renderHolidaysStep() {
 
       <div class="onboarding-holiday-meta">
         <span class="holiday-count">${state.holidays.length}</span>
-        <p class="text-muted">Click a selected date again to remove it.</p>
+        <p class="text-muted">${semesterHint}</p>
       </div>
 
       <div class="onboarding-holiday-chip-list">
@@ -750,7 +860,10 @@ async function syncSubjectsToServer() {
 
 async function syncHolidaysToServer() {
   const existing = uniqueSortedDates(await api.get("/api/holidays"));
-  const desired = uniqueSortedDates(state.holidays);
+  const desired = uniqueSortedDates(state.holidays).filter((date) =>
+    isDateWithinSemester(date),
+  );
+  state.holidays = desired;
 
   const existingSet = new Set(existing);
   const desiredSet = new Set(desired);
@@ -841,6 +954,8 @@ function handleStepAdvance() {
       return;
     }
 
+    keepHolidaysWithinSemester();
+    clampHolidayCalendarToSemester();
     clearError();
     state.step = 2;
     render();
@@ -863,6 +978,12 @@ function handleAddSubject(form) {
 
   if (!name) {
     setError("Subject name is required.");
+    render();
+    return;
+  }
+
+  if (days.length === 0) {
+    setError("Select at least one scheduled day to add this subject.");
     render();
     return;
   }
@@ -989,6 +1110,8 @@ function handleChange(event) {
 
   if (target.id === "semesterStartInput") {
     state.semester.start = target.value;
+    keepHolidaysWithinSemester();
+    clampHolidayCalendarToSemester();
     clearError();
     render();
     return;
@@ -996,6 +1119,8 @@ function handleChange(event) {
 
   if (target.id === "semesterEndInput") {
     state.semester.end = target.value;
+    keepHolidaysWithinSemester();
+    clampHolidayCalendarToSemester();
     clearError();
     render();
   }
@@ -1026,6 +1151,8 @@ async function loadOnboarding() {
       ? subjectsData.map(mapSubjectFromApi).filter(Boolean)
       : [];
     state.holidays = uniqueSortedDates(holidaysData);
+    keepHolidaysWithinSemester();
+    clampHolidayCalendarToSemester();
     state.step = getFirstIncompleteStep();
     clearError();
   } catch (error) {

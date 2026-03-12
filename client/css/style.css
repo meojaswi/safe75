@@ -2420,6 +2420,18 @@ body {
   background: rgba(255, 255, 255, 0.08);
 }
 
+.holidays-page .calendar-day.disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.holidays-page .calendar-day.disabled:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
 .holidays-page .holiday-item {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -2742,6 +2754,18 @@ body {
   margin: 8px auto 0;
   padding: 20px;
   max-width: 720px;
+}
+
+.onboarding-holiday-card .calendar-day.disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.onboarding-holiday-card .calendar-day.disabled:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .onboarding-holiday-meta {
