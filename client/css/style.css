@@ -504,6 +504,15 @@ body {
   display: none;
 }
 
+.sidebar-link-danger {
+  color: #ef4444;
+}
+.sidebar-link-danger:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-left-color: #ef4444 !important;
+  color: #ef4444 !important;
+}
+
 .sidebar-link .link-icon {
   font-size: 1.1rem;
   width: 22px;
