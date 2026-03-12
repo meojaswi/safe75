@@ -66,7 +66,11 @@ async function handleGoogleCredentialResponse(response) {
 
     localStorage.setItem("isAuthenticated", "1");
     localStorage.setItem("userName", data.name);
-    window.location.replace("dashboard.html");
+    const destination =
+      typeof window.getPostLoginRedirectPath === "function"
+        ? await window.getPostLoginRedirectPath(true)
+        : "dashboard.html";
+    window.location.replace(destination);
   } catch (error) {
     showGoogleError(error.message);
   }

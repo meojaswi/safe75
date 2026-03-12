@@ -83,6 +83,44 @@ exports.getSemester = async (req, res) => {
   }
 };
 
+exports.getSetupStatus = async (req, res) => {
+  try {
+    const [user, subjectCount, holidayCount] = await Promise.all([
+      User.findById(req.userId).select("semesterStart semesterEnd"),
+      Subject.countDocuments({ userId: req.userId }),
+      Holiday.countDocuments({ userId: req.userId }),
+    ]);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const hasSemester = Boolean(
+      user.semesterStart &&
+        user.semesterEnd &&
+        user.semesterStart < user.semesterEnd,
+    );
+    const hasSubjects = subjectCount > 0;
+    const onboardingCompleted = hasSemester && hasSubjects;
+
+    return res.json({
+      requiresOnboarding: !onboardingCompleted,
+      onboardingCompleted,
+      hasSemester,
+      hasSubjects,
+      semesterStart: user.semesterStart || null,
+      semesterEnd: user.semesterEnd || null,
+      subjectCount,
+      holidayCount,
+    });
+  } catch (error) {
+    console.error("Get setup status error:", error);
+    return res
+      .status(500)
+      .json({ message: "Something went wrong on the server. Please try again." });
+  }
+};
+
 exports.setSemester = async (req, res) => {
   try {
     const { semesterStart, semesterEnd } = req.body;
