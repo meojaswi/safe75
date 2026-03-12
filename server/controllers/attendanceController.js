@@ -77,13 +77,18 @@ exports.markAttendance = async (req, res) => {
         .json({ message: "Cannot mark attendance for future dates" });
     }
 
-    const [subject, user] = await Promise.all([
+    const [subject, user, isHoliday] = await Promise.all([
       Subject.findOne({
         _id: subjectId,
         userId: req.userId,
       }),
       User.findById(req.userId).select("semesterStart"),
+      Holiday.exists({ userId: req.userId, date: attendanceDate }),
     ]);
+
+    if (isHoliday) {
+      return res.status(400).json({ message: "Cannot mark attendance on a holiday" });
+    }
 
     if (!subject) {
       return res.status(404).json({ message: "Subject not found" });
@@ -141,19 +146,27 @@ exports.getAttendanceStats = async (req, res) => {
   try {
     const { subjectId } = req.params;
 
-    const subject = await Subject.findOne({ _id: subjectId, userId: req.userId });
+    const [subject, holidays] = await Promise.all([
+      Subject.findOne({ _id: subjectId, userId: req.userId }),
+      Holiday.find({ userId: req.userId }).select("date")
+    ]);
+
     if (!subject) {
       return res.status(404).json({ message: "Subject not found" });
     }
 
+    const holidayDates = holidays.map(h => h.date);
+
     const total = await Attendance.countDocuments({
       subjectId,
       status: { $ne: "no_class" },
+      date: { $nin: holidayDates }
     });
 
     const present = await Attendance.countDocuments({
       subjectId,
       status: "present",
+      date: { $nin: holidayDates }
     });
 
     const percentage = total === 0 ? 0 : (present / total) * 100;
@@ -232,6 +245,8 @@ exports.getDashboard = async (req, res) => {
     // Create a date → status map (if any subject was attended that day, it's "present")
     const dateMap = {};
     for (const rec of allRecords) {
+      if (holidaySet.has(rec.date)) continue;
+
       const subjectKey = String(rec.subjectId);
       const stats = subjectStatsMap[subjectKey];
       if (!stats) continue;

@@ -190,6 +190,10 @@ function getDateValidationError(dateStr) {
     return "Cannot select future dates";
   }
 
+  if (holidays.includes(dateStr)) {
+    return "Cannot mark attendance on a holiday";
+  }
+
   return null;
 }
 
