@@ -15,7 +15,6 @@ const STEPS = [
 ];
 
 const SCHEDULE_DAYS = [
-  "Sunday",
   "Monday",
   "Tuesday",
   "Wednesday",
